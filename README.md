@@ -12,7 +12,6 @@ ANALYSES
      PRIMARY
      1.  Multi-level (mixed effects) left censored regression testing pre-to-post change in log MME between study arms for AESOPS clinicians (n = 488)
      2.  Coefficients used to derive adjusted MME to test whether difference in average mean pre-to-post MME differed between study arms 
-
      SECONDARY
      1. Proportion of patients who received an Rx => 50 MME
      
