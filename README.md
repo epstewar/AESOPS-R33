@@ -31,19 +31,20 @@
 	CODE
     	File 1: FILE1.sas 
     	Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
-        	1. Imports raw AESOPS and CDC data [lines 25-35]
-        	 	a. Opioid prescriptions with '' replacing nulls (/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_12June24/Data/rx_temp.xlsx)
-        	 	b. CDC conversion factors (/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Data/mme_cw.xlsx)
-        	 	c. Clinician demographics (/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_12June24/Data/AESOPS_R33_Trial1_ClinicianDemo.xlsx)
-        	 	d. Best Practice Alerts (BPAs) (/schaeffer-a/sch-data-library/dua-data/AESOPS/Original_data/Data/20240731_Download/AESOPS_R33_Trial1_BPA.xlsx)
-        	2. Merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [lines 37-59]
-        	3. Merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [lines 72-87]
-        	4. Rx, patient, and clincians counts [lines 96-126, 136-157] and removal of suppositories, injectables and powders [128-133]
-        	5. Merges CDC info. (e.g., conversion factor) with prescription data [lines 150-157]  
-        	6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [lines 159-221]
-          	 	a.  For analysis, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs. 
-        	7. Exports medication names and conversion factors for Supplemental Table 1 [lines 223-237]
-       		8. Add BPA label to BPA file and merge with Rx file by visit ID [lines 239-265]
+        	1. Imports raw AESOPS and CDC data [lines 16-28]
+        	 	a. Opioid prescriptions with '' replacing nulls (rx_temp.xlsx)
+        	 	b. CDC conversion factors (mme_cw.xlsx)
+        	 	c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
+        	 	d. Best Practice Alerts (BPAs) (AESOPS_R33_Trial1_BPA.xlsx)
+        	2. Merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [lines 30-52]
+        	3. Merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [lines 65-80]
+        	4. Rx, patient, and clincians counts [lines 82-119, 128-141] and removal of suppositories, injectables and powders [121-126]
+        	5. Merges CDC info. (e.g., conversion factor) with prescription data [lines 143-151]  
+        	6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [lines 153-216]
+          	 	a.  For LTHD analysis, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
+				b.  For model primary outcome, we used total MME (strength*qty*conversion factor)
+        	7. Exports medication names and conversion factors for Supplemental Table 1 [lines 218-229]
+       		8. Add BPA label to BPA file and merge with Rx file by visit ID [lines 231-263]
         	9. Removes subsequent BPAs for same encounter, outputs Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '')
-           		and checks clinician and clinic counts [267-285]
+           		and checks clinician and clinic counts [265-299]
         		a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique Rxs. 
