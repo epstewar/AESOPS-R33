@@ -71,7 +71,7 @@ proc sql;
 	when '11NOV2020'd <= ordering_date <= '29MAY2022'd then 1
 	when '30MAY2022'd <= ordering_date <= '30NOV2022'd then 2
 	else .
-  end as post,
+    end as post,
 	l.randomization, l.region, l.clinic_id
 	from rx t 
 	left join 
@@ -140,6 +140,7 @@ proc sql;
 	group by randomization;
 quit;
 
+*Merge CDC variables for MME calculation;
 proc sql;
 	create table sample_mme as 
 	select t.*, l.strength_per_unit, l.OP_Qtotal, l.has_op, l.mme_factor, l.route, l.form
