@@ -222,13 +222,10 @@ proc sql;
 	order by has_op;
 quit;
 
-proc print data = table_s1;
-run;
-
 proc export data = table_s1
-	outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Results/table_s1.xlsx"
-		dbms = xlsx
-		replace;
+outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Results/table_s1.xlsx"
+dbms = xlsx
+replace;
 run;
 
 *add BPA label (A, B, C) for BPA file;
@@ -240,7 +237,7 @@ proc sql;
 	when BPA_ID in (1255, 1222) then 'A'
 	when BPA_ID in (1360, 1358) then 'B'
 	else 'C'
-  end as BPA_obs from bpas);
+    end as BPA_obs from bpas);
 quit;
 
 *BPA counts;
