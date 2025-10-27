@@ -216,7 +216,7 @@ data sample_mme;
 run;
 
 *supplemental Table 1;
-/*proc sql;
+proc sql;
 	create table table_s1 as 
 	select distinct has_op, MME_factor from sample_mme
 	order by has_op;
