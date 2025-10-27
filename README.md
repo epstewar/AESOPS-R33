@@ -1,9 +1,10 @@
-PURPOSE
-The AESOPS-R33 repository provides code for manuscript "The effect of personalized risk communication, precommitments, and accountability on opioid prescribing" published in xyz journal on mm yyyy
+	PURPOSE
+	The AESOPS-R33 repository provides code for manuscript "The effect of personalized risk communication, precommitments, and accountability on opioid prescribing" 
+	published in xyz journal on mm yyyy
 
-DOI: ##########
+	DOI: ##########
 
-DATA (acquired from June 1, 2020 to August 7, 2023)
+	DATA (acquired from June 1, 2020 to August 7, 2023)
     1. Clinician, patient, and prescription data acquired from Northwestern Medicine and AltaMed Medical Group 
     3. MME Conversion factors, drug names and strengths, and drug NDCs obtained from Centers for Disease Control and Prevention 
        a. Opioid National Drug Code and Oral MME Conversion File Update. https://www.cdc.gov/opioids/data-resources/index.html (2023). 
@@ -14,7 +15,7 @@ ANALYSES
      2.  Exponentiated coefficients result in percent decrease used to derive adjusted MME 
 
      SECONDARY
-     1. Proportion of patients who received an Rx => 50 MME
+	 1. Proportion of patients who received an Rx => 50 MME
      
 CONTENTS 
 		 1. File code descriptions in order which they should be executed 
