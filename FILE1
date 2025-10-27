@@ -27,22 +27,6 @@ run;
 %imp(yourdirectory, AESOPS_R33_Trial1_BPA, bpas);
 %imp(yourdirectory, AESOPS_R33_Trial1_Prescription.xlsx, rx_raw);
 
-/*sensitivity analysis*/
-/*percentage visits in BPA file that do not have a visit id match in Rx file (n = 11325)*/	
-proc sql;
-	create table temp as 
-	select t.visit_id as bpa_id, l.visit_id as rx_id from bpas t 
-	left join 
-	rx_raw l 
-	on t.visit_id = l.visit_id;
-quit;
-
-proc sql;
-	title "Number of BPAs missing visit in Rx file"
-	select count(*) from temp 
-	where rx_id = .;
-quit;
-
 *add DMME (found in savepath.rx_cw_v4) to rx file;
 *remove duplicates;
 data temp;
