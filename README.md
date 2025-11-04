@@ -55,8 +55,8 @@
            3. Proc sql acquires all opioid Rxs previous (n = 2,501,244) to index Rx (n = 137,769) [26-63]
            4. Proc sql selects columns to append to previous Rxs and merges dMME by visit_ID [65-97]
            5. Data step appends index Rxs (rx_index) and previous Rxs (previous_rxs) [94-113]
-           		a. Intck calculates number of days between index Rx ordering date and previous Rx start and end dates [103-107]
-           		b. 90-day and 90- to 180-day trigger rules [109-117]
+          		a. Intck calculates number of days between index Rx ordering date and previous Rx start and end dates [103-107]
+          		b. 90-day and 90- to 180-day trigger rules [109-117]
            6. Proc sql sums total number of 90-day (total_ninety) and 90- to 180-day (total_sixmnth) previous opioid Rxs per index Rx [120-129]
            7. Proc sql merges analytic variables with total_ninety and total_sixmnth by prescription_id (index_rx) [131-140]
            		a. Creates 'bpa_type' file to be used in File 3
