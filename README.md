@@ -46,7 +46,7 @@
       		7. Exports medication names and conversion factors for Supplemental Table 1 [218-229]
        		8. Add BPA label to BPA file and merge with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [231-263]
        		9. Outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') and checks clinician and clinic counts [265-299]
-        		a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
+        	   a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
         		 
       File 2: FILE2.sas
        Goal: Classify each Rx in 'sample_mme_bpa.sas7bdat' (n = 137,769) as naive, recently exposed, LTHD, or 'other' 
