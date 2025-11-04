@@ -31,21 +31,21 @@
 	CODE
     	File 1: FILE1.sas 
     	Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
-        	1. Imports raw AESOPS and CDC data [lines 16-28]
+   				1. Imports raw AESOPS and CDC data [lines 16-28]
         		 a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
         	 	 b. CDC conversion factors (mme_cw.xlsx)
         	 	 c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
         	 	 d. Best Practice Alerts (BPAs) (AESOPS_R33_Trial1_BPA.xlsx)
-        	2. Merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [30-52]
-        	3. Merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [65-80]
-        	4. Rx, patient, and clincians counts [lines 82-119, 128-141] and removal of suppositories, injectables and powders [121-126]
-        	5. Merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [143-151]  
-        	6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [153-216]
-          	 a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
+     			2. Merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [30-52]
+    			3. Merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [65-80]
+      		4. Rx, patient, and clincians counts [lines 82-119, 128-141] and removal of suppositories, injectables and powders [121-126]
+      		5. Merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [143-151]  
+       		6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [153-216]
+         		 a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
 						 b. For model primary outcome, we used total MME (strength*qty*conversion factor)
-        	7. Exports medication names and conversion factors for Supplemental Table 1 [218-229]
+      		7. Exports medication names and conversion factors for Supplemental Table 1 [218-229]
        		8. Add BPA label to BPA file and merge with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [231-263]
-        	9. Outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') and checks clinician and clinic counts [265-299]
+       		9. Outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') and checks clinician and clinic counts [265-299]
         		 a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
         		 
       File 2: FILE2.sas
