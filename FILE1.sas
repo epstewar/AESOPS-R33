@@ -5,7 +5,6 @@ ods pdf file = "yourdirectory";
 **GOALS
 ***1. Calculate MME per Rx 
 ***2. Merge with BPA file, and get observed BPA per encounter 
-***ES  June 12, 2024
 
 **NU STUDY TIME FRAME
 ***Baseline: 6/1/2020-11/29/2020 (weeks 1-26)
@@ -21,11 +20,10 @@ proc import datafile = "&directory/&infile..xlsx"
 	dbms = xlsx;
 run;
 %mend imp;
-%imp(yourdirectory, rx_temp, rx);
+%imp(yourdirectory, rx, rx);
 %imp(yourdirectory, mme_cw, cw);
 %imp(yourdirectory, AESOPS_R33_Trial1_ClinicianDemo, clinicians);
 %imp(yourdirectory, AESOPS_R33_Trial1_BPA, bpas);
-%imp(yourdirectory, AESOPS_R33_Trial1_Prescription.xlsx, rx_raw);
 
 *add DMME (found in savepath.rx_cw_v4) to rx file;
 *remove duplicates;
@@ -51,16 +49,16 @@ proc sql;
 	on t.prescription_id = l.prescription_id;
 quit;
 
-/*proc sql;
+proc sql;
 	title "Total no. of clinicians";
 	select count(distinct prov_id) as ct_prov, count(distinct clinic_id) as ct_clinic from clinicians;
-quit;*/
+quit;
 	
-/*proc sql;
+proc sql;
 	title "No. of clinicians by study arm";
 	select count(distinct prov_id) as ct_prov, count(distinct clinic_id) as ct_clinic, randomization from clinicians 
 	group by randomization;
-quit;*/
+quit;
 	
 *get prov. assignment;
 proc sql;
@@ -80,14 +78,14 @@ proc sql;
 quit;
 
 *check dates match post variable;
-/*proc sql;
+proc sql;
 	title "Study Period Dates";
 	select min(ordering_date) format=mmddyy10. as min, max(ordering_date) format=mmddyy10. as max, post from rx 
 	group by post;
-quit;*/
+quit;
 
 *no. Rxs, clinicians, and patients overall;
-/*proc sql;
+proc sql;
 	title "No. of Rxs, patients, clinicians overall-# not in Rx file";
 	select count(prescription_id) as ct_rx, count(distinct prov_deid) as ct_prov, count(distinct clinic_id) as ct_clinic, count(distinct cohort_patient_id) as ct_pat from rx
 	where randomization ne .;
