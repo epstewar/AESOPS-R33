@@ -42,7 +42,7 @@
       		5. Merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [143-151]  
        		6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [153-216]
          		 a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
-						 b. For model primary outcome, we used total MME (strength*qty*conversion factor)
+				 b. For model primary outcome, we used total MME (strength*qty*conversion factor)
       		7. Exports medication names and conversion factors for Supplemental Table 1 [218-229]
        		8. Add BPA label to BPA file and merge with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [231-263]
        		9. Outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') and checks clinician and clinic counts [265-299]
