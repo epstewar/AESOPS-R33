@@ -29,9 +29,9 @@
 	Schaeffer Center for Health Policy and Economics, University Southern California
 
 	CODE
-    FILE1.sas 
-    Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
-	1. Proc import imports raw AESOPS and CDC data [lines 15-26]
+     FILE1.sas 
+	 Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
+	 1. Proc import imports raw AESOPS and CDC data [lines 15-26]
 	   a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
        b. CDC conversion factors (mme_cw.xlsx)
        c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
@@ -63,7 +63,7 @@
       8. Proc sql counts number of clinicians and clinics by study arm [142-147]
            
       FILE3.sas
-      Goal: Create analytic data set for mixed (per-prescription) and left-censored (tobit) clinician-week model
+	  Goal: Create analytic data set for mixed (per-prescription) and left-censored (tobit) clinician-week model
       1. Proc import imports clinician-weekly number of encounters and study date weeks [13-22]
       2. Proc import imports AltaMed analytic data [24-78]
       3. Datastep classifies each index Rx in analytic data (n = 137,769) as naive (A), recently exposed (B), or LTHD (C) [80-93]
