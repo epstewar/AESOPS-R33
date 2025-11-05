@@ -1,9 +1,21 @@
+/**********************************************************************************************************************************************
+**GOALS
+***1. Get pre- mean MME, adjusted intervention and follow-up MME for control and intervention
+***2. Get differences pre- to intervention and pre- to follow-up for control and intervention
+***3. Get difference-in-differences
+***4. Get bootstrapped 95% CIs for pre-, intervention, follow-up, differences, and difference-in-differences 
+***5. Add coefficient P values and output diff-in-diff tables to xlsx 
+***6. Use macro to execute above on each Rx type 
+***********************************************************************************************************************************************/
 
-ods excel file = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Results/did_tables_3Oct25.xlsx";
-	
-libname results "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Results";
-	
-	proc format;
+*output tables;
+ods excel file = "/yourdirectory/did_tables_3Oct25.xlsx";
+
+*libname 	
+libname results "/yourdirectory/";
+
+*proc format 
+proc format;
 	value Parameterf 
 	0 = "Prescribers (clinics)"
 	1 = "Pre"
@@ -11,7 +23,8 @@ libname results "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recen
 	3 = 'Diff'
 	4 = 'DiD';
 run;
-	
+
+*macro to get adjusted post values and bootstrapped 95% CIs for each Rx type;
 %macro did(bpa);
 	
 *import pre-intervention means from STATA;
@@ -31,7 +44,7 @@ proc means data = est&bpa noprint;
 	by assignment;
 run;
 
-*import boostrapped CIs from R;
+*import 95% boostrapped CIs from FILE5.r;
 proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/&bpa._boot.csv"
 	out = &bpa._boot
 	dbms = csv;
@@ -68,15 +81,15 @@ proc sql;
   %end;
 quit;
 
+*post means;
 data &p.cis&i;
 	set &p.cis&i;
-	*post numbers;
 	post_mean = round(diff_mean + pre_mean,0.1);
 	post_lcl = round(diff_lcl + pre_lcl,0.1);
 	post_ucl = round(diff_ucl + pre_ucl,0.1);
 run;
 
-*pre- data;
+*rename columns and create row number to maintain format order;
 %macro chng(var, no);
 data &p.&var.&i;
 	set &p.cis&i (rename = (&var._mean = mean&i &var._lcl = lcl&i &var._ucl = ucl&i));
@@ -103,6 +116,7 @@ proc sql;
 	on t.Parameter = l.Parameter;
 quit;
 
+*difference-in-differenes;
 data &p.&bpa.did;
 	set &p.&bpa;
 	did = round(mean1 - mean0,0.1);
@@ -112,11 +126,13 @@ data &p.&bpa.did;
 	if parameter = 3 then output;
 run;
 
+*rename DiD;
 data &p.&bpa;
 	set &p.&bpa &p.&bpa.did (rename = (did = mean0 did_lcl = lcl0 did_ucl = ucl0));
 	if parameter = . then parameter = 4;
 run;
 
+*combine DiD and 95% CIs;
 proc sql;
 create table &p.&bpa as
 select parameter, 
@@ -133,21 +149,25 @@ proc sql;
 	group by assignment);
 quit;
 
+*transpose counts;
 proc transpose data = &p.&bpa.ct out = &p.&bpa.ctt (drop = _NAME_);
 	var ct;
 run;
 
+*rename columns and add parameter for format;
 data &p.&bpa.ctt;
 	set &p.&bpa.ctt (rename = (COL1 = Control COL2 = Intervention));
 	parameter = 0;
 run;
 
+*append clinician and clinic counts to DiD table;
 data &p.&bpa.total;
 	retain parameter control intervention;
 	set &p.&bpa.ctt &p.&bpa;
 	if parameter = 4 then intervention = '';
 run;
 
+*print for ods excel with format;
 proc print data = &p.&bpa.total;
 	format parameter parameterf.;
 	title "&bpa";

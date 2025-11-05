@@ -48,17 +48,6 @@ proc sql;
 	distinct_dmme l 
 	on t.prescription_id = l.prescription_id;
 quit;
-
-proc sql;
-	title "Total no. of clinicians";
-	select count(distinct prov_id) as ct_prov, count(distinct clinic_id) as ct_clinic from clinicians;
-quit;
-	
-proc sql;
-	title "No. of clinicians by study arm";
-	select count(distinct prov_id) as ct_prov, count(distinct clinic_id) as ct_clinic, randomization from clinicians 
-	group by randomization;
-quit;
 	
 *get prov. assignment;
 proc sql;
@@ -69,7 +58,7 @@ proc sql;
 	when '11NOV2020'd <= ordering_date <= '29MAY2022'd then 1
 	when '30MAY2022'd <= ordering_date <= '30NOV2022'd then 2
 	else .
-    end as post,
+  end as post,
 	l.randomization, l.region, l.clinic_id
 	from rx t 
 	left join 
@@ -114,7 +103,7 @@ proc sql;
 	where post ne . and randomization ne .
 	group by randomization
 	order by randomization;
-quit;*/
+quit;
 
 *convert medication_id to number and remove injectables, suppositories and powders;
 data savepath.rx;
@@ -193,24 +182,24 @@ data sample_mme;
 	/*Days' supply*/
 	days = end_date - start_date;
   
-   	/*MME*/
+  /*MME*/
 	if days <= 0 then days = 30;
-  	avg_daily_MME = strengthn*(quantityn/30)*MME_factor;
-  	total_MME = strengthn*quantityn*MME_factor;
-  	if days ne 0 then do;
-  	avg_daily_mme_v2 = strengthn*(quantityn/days)*mme_factor;
-  	end;
+  avg_daily_MME = strengthn*(quantityn/30)*MME_factor;
+  total_MME = strengthn*quantityn*MME_factor;
+  if days ne 0 then do;
+  avg_daily_mme_v2 = strengthn*(quantityn/days)*mme_factor;
+  end;
 
-  	/*standardize drug forms*/
+  /*standardize drug forms*/
  	if medication_id in (210364, 3758) then form = 'Solution';
-  	if form = '' then form_v2 = '';
-  	else if form in ('Concentrate', 'Syrup', 'Syringe', 'Suspension', 'Solution', 'Liquid', 'suspension,extended rel 12 hr', 'Tincture', 'spray,non-aerosol') then form_v2 = "Solution";
-  	else if form = "Suppository" then form_v2 = "Suppository";
-  	else if form = "patch 72 hour" then form_v2 = "Patch";
-  	else form_v2 = "Tablet";
+  if form = '' then form_v2 = '';
+  else if form in ('Concentrate', 'Syrup', 'Syringe', 'Suspension', 'Solution', 'Liquid', 'suspension,extended rel 12 hr', 'Tincture', 'spray,non-aerosol') then form_v2 = "Solution";
+  else if form = "Suppository" then form_v2 = "Suppository";
+  else if form = "patch 72 hour" then form_v2 = "Patch";
+  else form_v2 = "Tablet";
   
-  	/*remove Rxs with missing MME (no pill qty)*/
-  	if total_mme ne . then output;
+  /*remove Rxs with missing MME (no pill qty)*/
+  if total_mme ne . then output;
 run;
 
 *supplemental Table 1;
@@ -235,7 +224,7 @@ proc sql;
 	when BPA_ID in (1255, 1222) then 'A'
 	when BPA_ID in (1360, 1358) then 'B'
 	else 'C'
-    end as BPA_obs from bpas);
+  end as BPA_obs from bpas);
 quit;
 
 *BPA counts;
@@ -273,6 +262,7 @@ data savepath.sample_mme_bpa;
 	if rn = 1 and (post ne .) and (prov_deid ne "") then output;
 run;
 
+*counts;
 proc sql;
 	Title "Observed BPA counts by study period and randomization";
 	select randomization, post, bpa_obs, count(*) as BPA_ct from savepath.sample_mme_bpa

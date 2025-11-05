@@ -29,69 +29,144 @@
 	Schaeffer Center for Health Policy and Economics, University Southern California
 
 	CODE
-    	File 1: FILE1.sas 
+    	FILE1.sas 
     	Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
-			1. Imports raw AESOPS and CDC data [lines 16-28]
+			1. Proc import imports raw AESOPS and CDC data [lines 15-26]
 			   a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
-        	   b. CDC conversion factors (mme_cw.xlsx)
-        	   c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
-        	   d. Best Practice Alerts (BPAs) (AESOPS_R33_Trial1_BPA.xlsx)
-     		2. Merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [30-52]
-    		3. Merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [65-80]
-      		4. Rx, patient, and clincians counts [lines 82-119, 128-141] and removal of suppositories, injectables and powders [121-126]
-      		5. Merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [143-151]  
-       		6. Cleans Rx strength, qty, etc., and calculates average daily and total MME [153-216]
-         	   a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
+         b. CDC conversion factors (mme_cw.xlsx)
+         c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
+         d. Best Practice Alerts (BPAs) (AESOPS_R33_Trial1_BPA.xlsx)
+     	2. Proc sql merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [28-50]
+    	3. Proc sql merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [52-67]
+      4. Proc sql gets Rx, patient, and clincians counts [lines 69-106, 115-128] and removes suppositories, injectables and powders [108-113]
+      5. Proc sql merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [130-138]  
+      6. Data step cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
+         a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
 			   b. For model primary outcome, we used total MME (strength*qty*conversion factor)
-      		7. Exports medication names and conversion factors for Supplemental Table 1 [218-229]
-       		8. Add BPA label to BPA file and merge with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [231-263]
-       		9. Outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') and checks clinician and clinic counts [265-299]
-        	   a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
+      7. Proc export exports medication names and conversion factors for Supplemental Table 1 [205-216]
+      8. Proc sql adds BPA label to BPA file and merges with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [218-250]
+      9. Proc sort and datastep outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') [252-263] and checks clinician and clinic counts [265-287]
+         a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
         		 
-      File 2: FILE2.sas
-       Goal: Classify each Rx in 'sample_mme_bpa.sas7bdat' (n = 137,769) as naive, recently exposed, LTHD, or 'other' 
-           1. Imports raw Rx data for previous opioid prescriptions [8-16]
-           2. Proc sql calculates total visit dMME [18-24]
-           3. Proc sql acquires all opioid Rxs previous (n = 2,501,244) to index Rx (n = 137,769) [26-63]
-           4. Proc sql selects columns to append to previous Rxs and merges dMME by visit_ID [65-97]
-           5. Data step appends index Rxs (rx_index) and previous Rxs (previous_rxs) [94-113]
-          	  a. Intck calculates number of days between index Rx ordering date and previous Rx start and end dates [103-107]
-          	  b. 90-day and 90- to 180-day trigger rules [109-117]
-           6. Proc sql sums total number of 90-day (total_ninety) and 90- to 180-day (total_sixmnth) previous opioid Rxs per index Rx [120-129]
-           7. Proc sql merges analytic variables with total_ninety and total_sixmnth by prescription_id (index_rx) [131-140]
-           	  a. Creates 'bpa_type' file to be used in File 3
-           8. Proc sql counts number of clinicians and clinics by study arm [142-147]
+      FILE2.sas
+      Goal: Classify each Rx in 'sample_mme_bpa.sas7bdat' (n = 137,769) as naive, recently exposed, LTHD, or 'other' 
+      1. Proc import imports raw Rx data for previous opioid prescriptions [8-16]
+      2. Proc sql calculates total visit dMME [18-24]
+      3. Proc sql acquires all opioid Rxs previous (n = 2,501,244) to index Rx (n = 137,769) [26-63]
+      4. Proc sql selects columns to append to previous Rxs and merges dMME by visit_ID [65-97]
+      5. Data step appends index Rxs (rx_index) and previous Rxs (previous_rxs) [94-113]
+         a. Intck calculates number of days between index Rx ordering date and previous Rx start and end dates [103-107]
+         b. 90-day and 90- to 180-day trigger rules [109-117]
+      6. Proc sql sums total number of 90-day (total_ninety) and 90- to 180-day (total_sixmnth) previous opioid Rxs per index Rx [120-129]
+      7. Proc sql merges analytic variables with total_ninety and total_sixmnth by prescription_id (index_rx) [131-140]
+         a. Creates 'bpa_type' file to be used in File 3
+      8. Proc sql counts number of clinicians and clinics by study arm [142-147]
            
-      File 3: FILE3.sas
-       Goal: Create analytic data set for mixed (per-prescription) and left-censored (tobit) clinician-week model
-           1. Proc import imports clinician-weekly number of encounters and study date weeks [13-22]
-           2. Proc import imports AltaMed analytic data [24-78]
-           3. Datastep classifies each index Rx in analytic data (n = 137,769) as naive (A), recently exposed (B), or LTHD (C) [80-93]
-              a. Converts NU patient ID to character to match AltaMed 
-           4. Proc sql creates table comparing expected and actual (i.e., observed) index Rx type [95-115]
-           5. Proc sql adds time period and number of visits per clinician-week to analytic sample [117-150]
-           6. Proc sql appends NU and AltaMed data for A-C patients to create 'mixed_analytic' data [152-158]
-           7. Proc sql appends NU and AltaMed data for A-C, and 'other' patients to create 'mixed_analyticu' data [160-166]
-           8. Proc sql checks overall patient, clinic, and clinician counts, and by assignment and BPA type [168-203]
-           9. Proc export exports mixed_analytic and mixed_analyticu data to .dta and .csv files [205-214]
-           10. Proc sql calculates mean total MME (avg_total_mme) by clinician-week [216-232]
-           11. Data step calculates log total MME (ln_avg_total_mme) [234-238]
-           12. Proc sql creates 'empty' data with all clinician-weeks set to MME 0, appends to analytic data, and removes duplicate weeks with 0 MME for non-zero MME clinician-weeks [240-254]
-               a. Proc sql creates 'empty' data [240-254]
-               b. Datastep combines other analytic variables with 'empty data' [256-271]
-               c. Datastep reorders variables [273-278]
-               d. Proc sql appends AltaMed and NU number of clinician-week encounters [280-286]
-           13. Proc sql adds number of visits per clinician-week and appends 'real' and 'empty' data [288-305]
-           14. Proc sort and datastep removes duplicate rows with 0 MME for visits with non-zero MME [307-321]
-           15. Proc sql checks clinician counts by BPA type and number of weeks per clinician [323-334]
-           16. Proc export exports tobit analytic data for each Rx type (e.g., savepath.analytic_tobit_A) to .dta and .csv files [336-349]
-           17. Data step appends A-B, and A-C Rxs [351-362]
-           18. Proc sql sums all Rx types (A-C) by clinician-week [364-374]
-           19. Proc sql checks clinician and clinic counts overall and by assignment [376-387]
-           20. Proc export exports AB and ABC data to .dta and .csv files [389-402]
-           21. Proc sort and datastep classifies Rx as 'high dose' and outputs one row per-patient clinician-week for high dose Rx (0 = no, 1 = yes) [404-426]
-           22. Proc sql sums total patients, number of patients who received high dose Rx per clinician-week and calculates proportion (prop_week) [428-434]
-           23. Proc export exports secondary analytic data to .dta and .csv files [436-445] 
+      FILE3.sas
+      Goal: Create analytic data set for mixed (per-prescription) and left-censored (tobit) clinician-week model
+      1. Proc import imports clinician-weekly number of encounters and study date weeks [13-22]
+      2. Proc import imports AltaMed analytic data [24-78]
+      3. Datastep classifies each index Rx in analytic data (n = 137,769) as naive (A), recently exposed (B), or LTHD (C) [80-93]
+         a. Converts NU patient ID to character to match AltaMed 
+      4. Proc sql creates table comparing expected and actual (i.e., observed) index Rx type [95-115]
+      5. Proc sql adds time period and number of visits per clinician-week to analytic sample [117-150]
+      6. Proc sql appends NU and AltaMed data for A-C patients to create 'mixed_analytic' data [152-158]
+      7. Proc sql appends NU and AltaMed data for A-C, and 'other' patients to create 'mixed_analyticu' data [160-166]
+      8. Proc sql checks overall patient, clinic, and clinician counts, and by assignment and BPA type [168-203]
+      9. Proc export exports mixed_analytic and mixed_analyticu data to .dta and .csv files [205-214]
+      10. Proc sql calculates mean total MME (avg_total_mme) by clinician-week [216-232]
+      11. Data step calculates log total MME (ln_avg_total_mme) [234-238]
+      12. Proc sql creates 'empty' data with all clinician-weeks set to MME 0, appends to analytic data, and removes duplicate weeks with 0 MME for non-zero MME clinician-weeks [240-254]
+          a. Proc sql creates 'empty' data [240-254]
+          b. Datastep combines other analytic variables with 'empty data' [256-271]
+          c. Datastep reorders variables [273-278]
+          d. Proc sql appends AltaMed and NU number of clinician-week encounters [280-286]
+      13. Proc sql adds number of visits per clinician-week and appends 'real' and 'empty' data [288-305]
+      14. Proc sort and datastep removes duplicate rows with 0 MME for visits with non-zero MME [307-321]
+      15. Proc sql checks clinician counts by BPA type and number of weeks per clinician [323-334]
+      16. Proc export exports tobit analytic data for each Rx type (e.g., savepath.analytic_tobit_A) to .dta and .csv files [336-349]
+      17. Data step appends A-B, and A-C Rxs [351-362]
+      18. Proc sql sums all Rx types (A-C) by clinician-week [364-374]
+      19. Proc sql checks clinician and clinic counts overall and by assignment [376-387]
+      20. Proc export exports AB and ABC data to .dta and .csv files [389-402]
+      21. Proc sort and datastep classifies Rx as 'high dose' and outputs one row per-patient clinician-week for high dose Rx (0 = no, 1 = yes) [404-426]
+      22. Proc sql sums total patients, number of patients who received high dose Rx per clinician-week and calculates proportion (prop_week) [428-434]
+      23. Proc export exports secondary analytic data to .dta and .csv files [436-445] 
+           
+      FILE4.do
+      Goal: Get estimates for primary and secondary outcomes for A, B, C, A-C, A-B, 'Other' and All Rxs for Supplemental Table S4-S12 
+      1. Imports tobit data (e.g., tobit_analytic_29Apr25_A) and changes institution to binary numeric (0 vs. 1) [10-16]
+      2. Metobit gets study_arm*post left-censored mixed tobit estimate  [18-23]
+      3. Matrix converts model statistics to matrices to output [25-38]
+      4. Putexcel exports primary outcome results to xlsx [40-45]
+      4. 'Egen', 'tabstat' and 'keep', and 'save' trim baseline values by 1% and save data [47-60]
+      5. Imports secondary data (secondary_analytic_prop) and change institution to binary numeric (0 vs. 1) [62-68]
+      6. Mixed gets study_arm*post estimate for linear mixed model [70-71]
+      7. Matrix and lincom gets marginal effects and difference-in-differences in estimated proportion of high-dose patients [73-152]
+         a. We were going to use this analysis for the paper, but chose not to
+      8. Putexcel exports secondary outcome results to xlsx [154-158]
+      
+      FILE5.r
+      Goal: Bootstrap 95% confidence intervals for tobit coefficients for each Rx type (A-C, AB, A, B, C, 'Other' and All)
+      1. Loads packages [1-4]
+    	2. Sets user defined function inputs for each model coefficient (e.g., intervention {intb}) and standard error (e.g., int_sd) [6-10]
+      3. Imports xlsx data with model estimates [12-14]
+         a. Xlsx has model coefficients for each Rx type on individual sheets 
+      4. Rnorm samples coefficients 1000 times [16-30]
+      5. Creates column names [32-34]
+      6. Gets lcl and ucl for each coefficient [36-40]
+      7. Appends column names to rows [42-43]
+      8. Returns dataframe [45-47]
+      9. Executes function [49-50]
+      10. Write.csv saves dataframe to csv [52-53]
+      
+      FILE5.sas 
+      Goal: Calculate mean pre- MME, adjusted intervention and follow-up MME, differences, and difference-in-differences, as well as bootstrapped 95% CIs for each Rx type for Table 2
+      1. Ods excel, libname, and proc format sets up output directory, libname, and table formats, respectively [11-25]
+      2. Proc import imports .dta file with pre- 1% trimmed clinician-weekly MME [30-34]
+      3. Proc sort and proc means calculates pre- mean MME by study arm [36-45]
+      4. Proc import imports 95% bootstrapped CIs from FILE5.r [47-51]
+      5. Proc transpose transpose CIs from long to wide [53-56]
+      6. Proc sql calculates and rounds pre- and diff- mean MMEs and 95% CIs for each study arm for intervention and follow-up periods [64-82]
+      7. Datastep calculates mean intervention and follow-up MME for each study arm [84-90]
+      8. Datastep renames columns and creates 'parameter' for format [92-98]
+      9. Datastep appends pre-, post, and diff rows for each study arm for the intervention and follow-up periods [104-108]
+      10. Proc sql merges control and intervention mean MME [110-117]
+      11. Datastep calculates and rounds difference-in-difference for intervention and follow-up period [119-127]
+      12. Datastep renames and columns and adds parameter order [129-133]
+      12. Proc sql combines difference-in-differences and 95% CIs [135-142]
+      13. Proc sql calculates number of clinics and clinicians in each study arm [144-150]
+      14. Proc transpose and datastep convert counts to wide and rename columns [152-161]
+      15. Datastep appends clinic and clinician counts to mean MMEs [163-168]
+      16. Proc print prints tables and applies format [170-174]
+      17. Close time period [176-179] and Rx type [181-190] macros
+      
+      FILE6.sas 
+      Goal: Calculate counts for each Table 1 and Table S2 characteristic, appends, formats, and outputs to RTF file
+      1. Directories for libname and ods excel [6-8]
+      2. Proc formats for Table 1 and Table S2 [10-110]
+      3. Proc import imports clinician characteristics [112-124]
+      4. Datasteps clean and create AltaMed clinic characteristics, proc sql creates NU clinic data, datastep appends AltaMed and NU clinic data [126-158]
+      5. Proc sql appends clinician data for AltaMed and NU [160-171]
+      6. Datasteps renames variables and creates license years [173-196]
+      7. Proc sql calculates counts for each characteristic in each study arm [198-215]
+      8. Proc sql merges control and intervention counts, and concatenates % [217-240]
+      9. Datastep removes missing clinic location [242-247]
+      10. End macro loops through every characteristic [248-266]
+      11. Proc sql creates Table 1 titles [268-291]
+      12. Proc sql calculates mean license years and SD, and concatenates [293-306]
+      13. Proc sql combines mean years and SD for control and intervention for Table 1 and Table S2 [308-317]
+      14. Proc sql and proc transpose calculates total (%) clinicians and clinics in each study arm and converts from long to wide format [319-340]
+      15. Datastep appends all characteristics and adds format [342-373]
+      16. Proc report adds Table 1 style and superscripts [375-386]
+      17. Datastep and proc report for Table S2 [388-414]
+      18. Abstract statistics [416-446]
+      
+      
+      
+         
+     
+         
        
            		
           

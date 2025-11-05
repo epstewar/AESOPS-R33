@@ -1,11 +1,11 @@
-*directories
-include setup.do
-global log $dua/AESOPS/R33_NU/Recent_25Mar25
-local dt = "`c(current_date)' `c(current_time)'"
-log using "$log/Logs/results_`dt'.log"
-global data $dua/AESOPS/R33_NU/Recent_25Mar25/Data
-global boot $dua/AESOPS/R33_NU/Recent_25Mar25/Bootstrap
-global output $dua/AESOPS/R33_NU/Recent_25Mar25/Results
+/**********************************************************************************************************************************************
+**GOALS
+***1. Get mixed left-censored coefficients for primary outcome, mean clinician-weekly MME, and sensitivity analysis, total clinician-weekly MME
+***2. Trim baseline values by 1% 
+***3. Execute above analyses on all Rx types: A,B, C, A-C, AB, 'Other' and All (A-C + 'Other')
+***4. Get mixed linear estimates for secondary outcome, proportion of patients w/high dose Rx per clinician-week
+***5. Output all model statistics (e.g., coefficients, SE, p value) to matrices 
+***********************************************************************************************************************************************/
 
 *primary outcome
 foreach n in A B C total {
@@ -44,38 +44,16 @@ putexcel A1 = "Log average weekly MME-Tobit", bold
 putexcel A2 = matrix(`n'cot'), names nformat(number_d3) 
 putexcel A3:A12 B2:G2, bold
 
-*adjusted bseline values
+*adjusted baseline values
 keep if post == 0
 
 *replace baseline obs. with post = 1 to get adjusted weekly value
 replace post = 1
 
-*remove outliers equal to or greater than 98st percentile
+*remove outliers equal to or greater than 99th percentile
 egen float pct = pctile(avg_total_mme), p(99)
 keep if avg_total_mme < pct
 tabstat avg_total_mme, by(assignment) stat(mean)
-
-*add coefficients to dataset
-gen int_b1 = e(b)[1,2]
-gen postint_b2 = e(b)[1,3]
-gen rand_b3 = e(b)[1,5]*assignment
-gen int_rand_b4 = e(b)[1,9]*assignment
-gen postint_rand_b5 = e(b)[1,11]*assignment
-
-*percent change based on 2% trimmed baseline values
-*intervention 
-gen perc_chng_int = exp(int_b1+int_rand_b4)
-*post-intervention 
-gen perc_chng_postint = exp(postint_b2+postint_rand_b5)
-
-*adjusted pre-intervention means
-*intervention 
-gen mme_int_adj = perc_chng_int*avg_total_mme
-gen int_diff = mme_int_adj - avg_total_mme
-
-*post-intervention 
-gen mme_post_adj = perc_chng_postint*avg_total_mme
-gen post_int_diff = mme_post_adj - avg_total_mme
 
 *save file to use for SAS 95% CI bootstrapping
 save $data/est_`n', replace
