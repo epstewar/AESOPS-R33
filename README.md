@@ -42,7 +42,7 @@
       5. Proc sql merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [130-138]  
       6. Data step cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
          a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
-			   b. For model primary outcome, we used total MME (strength*qty*conversion factor)
+		 b. For model primary outcome, we used total MME (strength*qty*conversion factor)
       7. Proc export exports medication names and conversion factors for Supplemental Table 1 [205-216]
       8. Proc sql adds BPA label to BPA file and merges with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [218-250]
       9. Proc sort and datastep outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') [252-263] and checks clinician and clinic counts [265-287]
@@ -109,7 +109,7 @@
       FILE5.r
       Goal: Bootstrap 95% confidence intervals for tobit coefficients for each Rx type (A-C, AB, A, B, C, 'Other' and All)
       1. Loads packages [1-4]
-    	2. Sets user defined function inputs for each model coefficient (e.g., intervention {intb}) and standard error (e.g., int_sd) [6-10]
+      2. Sets user defined function inputs for each model coefficient (e.g., intervention {intb}) and standard error (e.g., int_sd) [6-10]
       3. Imports xlsx data with model estimates [12-14]
          a. Xlsx has model coefficients for each Rx type on individual sheets 
       4. Rnorm samples coefficients 1000 times [16-30]
