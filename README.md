@@ -9,18 +9,18 @@
     3. MME Conversion factors, drug names and strengths, and drug NDCs obtained from Centers for Disease Control and Prevention 
        a. Opioid National Drug Code and Oral MME Conversion File Update. https://www.cdc.gov/opioids/data-resources/index.html (2023). 
 
-	ANALYSES 
-	PRIMARY
-	1.  Multi-level (mixed effects) left censored regression testing pre- to intervention and pre to follow-up change in log MME between study arms for AESOPS clinicians (n 	= 493)
-	2.  Exponentiated coefficients result in percent decrease used to derive adjusted MME 
+	 ANALYSES 
+	 PRIMARY
+	 1.  Multi-level (mixed effects) left censored regression testing pre- to intervention and pre to follow-up change in log MME between study arms for AESOPS clinicians (n 	= 493)
+	 2.  Exponentiated coefficients result in percent decrease used to derive adjusted MME 
 
-	SECONDARY
-	1. Proportion of patients who received an Rx => 50 MME
+	 SECONDARY
+	 1. Proportion of patients who received an Rx => 50 MME
      
-	CONTENTS 
-		 1. File code descriptions in order which they should be executed 
-		 2. Analytic sample data dictionary 
-		 3. Contact information 
+	 CONTENTS 
+	 1. File code descriptions in order which they should be executed 
+	 2. Analytic sample data dictionary 
+	 3. Contact information 
  
 	SOFTWARE
 	SAS version 9.4, STATA software version 16, and R version 4.3.2
