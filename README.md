@@ -162,6 +162,20 @@
       17. Datastep and proc report for Table S2 [388-414]
       18. Abstract statistics [416-446]
       
+      FILE7.sas 
+      Goal: Calcualte Table 1 patient counts and output to be used in FILE6, and get overall patient counts for 'Sample' section of Results 
+      1. Directory for libname [7-8]
+      2. Proc import imports NU and AltaMed data [10-16, 25-30] 
+      3. Datastep to convert NU pat_id to character [18-23] and edit AltaMed age to be consistent with NU [32-39]
+      4. Proc sql merges NU patient assignment with demos. [41-49]
+      5. Datastep appends NU and AltaMed data and edits variables [51-60]
+      6. Proc sql recodes and recategorizes variables [62-111]
+      7. Macro and proc sql calculates patient demographic counts by assignment and creates tables [113-153]
+      8. Proc sql merges control and intervention age [155-162]
+      9. Proc sql calculates distinct patient counts by study arm [164-169], transposes [171-173] and creates table [175-180]
+      10. Proc freq and proc mean print numbers (%) and means for patient gender, race, ethnicity, and age in 'Sample' section of results [182-198]
+      11. Proc sql calculates counts (%) for Rx type by study arm for Table S3 [200-206]
+      12. Proc sql calculates total number of distinct patients overall and by Rx type [208-234]
       
       
          

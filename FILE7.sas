@@ -1,12 +1,19 @@
-libname savepath "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Data";
+/**********************************************************************************************************************************************
+**GOAL
+***1. Calculate Table 1 patient counts to be used in FILE6
+***2. Get overall patient counts for 'Sample' section of Results 
+***********************************************************************************************************************************************/
+
+*libname;
+libname savepath "/yourdirectory";
 
 *23568 unique patients in NU sample, 23811 in Table 1 (saw Tx and control clinician);
 *import NU patient data;
-/*proc import datafile = "/schaeffer-a/sch-data-library/dua-data/AESOPS/Original_data/Data/20240731_Download/AESOPS_R33_Trial1_Pt_demo.xlsx"
+proc import datafile = "/yourdirectory/20240731_Download/AESOPS_R33_Trial1_Pt_demo.xlsx"
 	out = savepath.nu
 	replace
 	dbms = xlsx;
-run;*/
+run;
 
 *make patient id character;
 data nu;
@@ -16,12 +23,13 @@ data nu;
 run;
 
 *import AltaMed patient data;
-proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/ALTA_PATIENT_TABLE1.xlsx"
+proc import datafile = "/yourdirectory/ALTA_PATIENT_TABLE1.xlsx"
 	out = alta_pat
 	replace
 	dbms = xlsx;
 run;
 
+*make age consistent with NU;
 data alta_pat;
 	set alta_pat;
 	if age_rc > 89 then age = '89+';
@@ -153,9 +161,6 @@ proc sql;
 	on t.trait = l.trait;
 quit;
 
-proc print data = savepath.pat_age;
-run;
-
 *total in each study arm;
 proc sql;
 	create table total_pa as 
@@ -167,58 +172,34 @@ quit;
 proc transpose data = total_pa out = total_pat (where = (_NAME_ ne 'ASSIGNMENT'));
 run;
 
+*create table;
 proc sql;
 	create table savepath.total_pat as 
 	select 'aaa' as trait, catx(' ', COL1, cat('(', round(COL1/(COL1+COL2),.001)*100, ')')) as Control, 
 	catx(' ', COL2, cat('(', round(COL2/(COL1+COL2),.001)*100, ')')) as Intervention from total_pat;
 quit;
 
-*overall stats for Abstract;
+*overall stats for 'Sample' section of Results ;
 *distinct patients;
 proc sql;
 	create table pat_v3 as 
 	select distinct pat_id, gender_rc, race_rc, ethnicity_rc, age_cont from savepath.pat_v2;
 quit;
 
+*counts and percentages;
 proc freq data = pat_v3;
-	title "Patient gender, race, ethnicity for Abstract";
+	title "Patient Gender, Race, Ethnicity for Paragraph 2 of 'Sample' in Results";
 	table gender_rc race_rc ethnicity_rc;
 run;
 
 proc means data = pat_v3 mean std;
-	title "Patient age and SD for Abstract";
+	title "Overall Patient Age and SD Paragraph 2 of 'Sample' in Results";
 	var age_cont;
-run;
-
-proc sql;
-	select count(distinct pat_id), count(*) from savepath.mixed_analyticu;
-quit;
-
-proc sql;
-	select count(distinct pat_id), assignment from savepath.mixed_analyticu
-	group by assignment;
-quit;
-
-*average number of weeks with an MME prescription;
-data temp;
-	set savepath.analytic_tobit_18Aug25_total;
-	if ln_avg_total_mme ne 0 then opioid = 1;
-	else opioid = 0;
-run;
-
-proc sql;
-	create table temp2 as 
-	select prov_deid, non_zero_wks, (non_zero_wks/131) as mean_wks from 
-	(select prov_deid, sum(opioid) as non_zero_wks from temp
-	group by prov_deid);
-quit;
-
-proc means data = temp2 mean std;
-	var mean_wks;
 run;
 
 *BPA percentage by study arm (Table S2);
 proc sql;
+	title "Table S3 Number of Patients who Received Each Rx Type by Assignment";
 	select count(distinct pat_id) as ct, bpa_exp, assignment from savepath.mixed_analyticu
 	group by bpa_exp, assignment
 	order by assignment, bpa_exp;
@@ -227,16 +208,18 @@ quit;
 *overall counts (under 'Sample' section of paper);
 *number of unique patients;
 proc sql;
+	title "Total Patients in Study Period Paragraph 2 of 'Sample' in Results";
 	select count(distinct pat_id) as ct_pat from savepath.mixed_analyticu;
 quit;
 
 *by study arm;
 proc sql;
+	title "Table 2 Patient Counts by Study Arm";
 	select count(distinct pat_id) as ct_pat, assignment from savepath.mixed_analyticu
 	group by assignment;
 quit;
 
-*by BPA type;
+*Overall Rx counts (second paragraph of "Sample" in Results);
 proc sql;
 	create table temp_pat as 
 	select distinct pat_id, bpa_exp from savepath.mixed_analyticu
@@ -244,11 +227,9 @@ proc sql;
 	order bpa_exp;
 quit;
 
+*BPA type;
 proc freq data = temp_pat;
 	table BPA_EXP;
+	Title "Overall Rx Counts in 2nd Paragraph of 'Sample' in Results";
 run;
-
-proc sql;
-	select count(distinct pat_id) as ct_pat_id from savepath.mixed_analytic;
-quit;
 
