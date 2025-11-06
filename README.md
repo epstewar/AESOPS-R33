@@ -5,8 +5,8 @@
 	DOI: ##########
 
 	DATA (acquired from June 1, 2020 to August 7, 2023)
-  1. Clinician, patient, and prescription data acquired from Northwestern Medicine and AltaMed Medical Group 
-  2. MME Conversion factors, drug names and strengths, and drug NDCs obtained from Centers for Disease Control and Prevention 
+	1. Clinician, patient, and prescription data acquired from Northwestern Medicine and AltaMed Medical Group 
+	2. MME Conversion factors, drug names and strengths, and drug NDCs obtained from Centers for Disease Control and Prevention 
      a. Opioid National Drug Code and Oral MME Conversion File Update. https://www.cdc.gov/opioids/data-resources/index.html (2023). 
 
 	ANALYSES 
@@ -29,7 +29,7 @@
 	Schaeffer Center for Health Policy and Economics, University Southern California
 
 	CODE
-    	FILE1.sas 
+			FILE1.sas 
     	Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
 			1. Proc import imports raw AESOPS and CDC data [lines 15-26]
 				 a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
