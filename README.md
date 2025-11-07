@@ -92,8 +92,7 @@
       21. Proc sort and datastep classifies Rx as 'high dose' and outputs one row per-patient clinician-week for high dose Rx (0 = no, 1 = yes) [404-426]
       22. Proc sql sums total patients, number of patients who received high dose Rx per clinician-week and calculates proportion (prop_week) [428-434]
       23. Proc export exports secondary analytic data to .dta and .csv files [436-445] 
-      
-          
+         
       FILE4.do
       Goal: Produce Supplemental Figures S2 and S3, and determine best percentage cutoff for trimmed baseline MME
       1. 'Use' imports analytic data [10-11]

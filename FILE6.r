@@ -10,7 +10,7 @@ boot <- function(bpa = "B", dat = est, intb = dat$int_b, int_std = dat$int_se,
 													folpostb = dat$followpost_b, folpost_std = dat$followpost_se) {
 
 #import coefficients and standard errors 
-dat <- read_xlsx("/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/R33_bootstrap_estimates.xlsx", sheet = bpa)
+dat <- read_xlsx("/directory/R33_bootstrap_estimates.xlsx", sheet = bpa)
 str(dat)
 
 #intervention coefficient 
@@ -50,4 +50,4 @@ return(as.data.frame(ci.data))
 B_boot <- boot()
 
 #save dataframe to csv 
-write.csv(B_boot, file = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/B_boot.csv")
+write.csv(B_boot, file = "/directory/B_boot.csv")
