@@ -92,8 +92,22 @@
       21. Proc sort and datastep classifies Rx as 'high dose' and outputs one row per-patient clinician-week for high dose Rx (0 = no, 1 = yes) [404-426]
       22. Proc sql sums total patients, number of patients who received high dose Rx per clinician-week and calculates proportion (prop_week) [428-434]
       23. Proc export exports secondary analytic data to .dta and .csv files [436-445] 
-           
+      
+          
       FILE4.do
+      Goal: Produce Supplemental Figures S2 and S3, and determine best percentage cutoff for trimmed baseline MME
+      1. 'Use' imports analytic data [10-11]
+      2. Qnorm produces QQ plot for mean clinician-weekly MME [13-14] and 'graph' exports plot to PDF [15]
+      3. Qnorm produces QQ plot for log mean clinician-weekly MME [17-18] and 'graph' exports plot to PDF [19]
+      5. Foreach iterates code on each Rx type (e.g., naive, recently exposed) [21-22]
+      6. Putexcel creates xlsx 'trimmed_means' and adds a sheet for each Rx type [24]
+      7. Forval creates loop that trims baseline means by an increasing 1% from 1% to 10% [25]
+      8. Egen creates percentile cutoff and 'keep' removes mean clinician-weeks that exceed [26-31]
+      9. Tabstat calculates mean MME in each study arm [32]
+      10. 'Matrix' creates matrix with % cutoff and corresponding mean MME in each study arm [33-39]
+      11. Putexcel puts matrix values in cell A1 for each Rx sheet [40]
+           
+      FILE5.do
       Goal: Get estimates for primary and secondary outcomes for A, B, C, A-C, A-B, 'Other' and All Rxs for Supplemental Table S4-S12 
       1. Imports tobit data (e.g., tobit_analytic_29Apr25_A) and changes institution to binary numeric (0 vs. 1) [10-16]
       2. Metobit gets study_arm*post left-censored mixed tobit estimate  [18-23]
@@ -106,7 +120,7 @@
          a. We were going to use this analysis for the paper, but chose not to
       8. Putexcel exports secondary outcome results to xlsx [154-158]
       
-      FILE5.r
+      FILE6.r
       Goal: Bootstrap 95% confidence intervals for tobit coefficients for each Rx type (A-C, AB, A, B, C, 'Other' and All)
       1. Loads packages [1-4]
       2. Sets user defined function inputs for each model coefficient (e.g., intervention {intb}) and standard error (e.g., int_sd) [6-10]
@@ -120,7 +134,7 @@
       9. Executes function [49-50]
       10. Write.csv saves dataframe to csv [52-53]
       
-      FILE5.sas 
+      FILE6.sas 
       Goal: Calculate mean pre- MME, adjusted intervention and follow-up MME, differences, and difference-in-differences, as well as bootstrapped 95% CIs for each Rx type for Table 2
       1. Ods excel, libname, and proc format sets up output directory, libname, and table formats, respectively [11-25]
       2. Proc import imports .dta file with pre- 1% trimmed clinician-weekly MME [30-34]
@@ -141,7 +155,7 @@
       16. Proc print prints tables and applies format [170-174]
       17. Close time period [176-179] and Rx type [181-190] macros
       
-      FILE6.sas 
+      FILE7.sas 
       Goal: Calculates counts for each Table 1 and Table S2 characteristic, appends, formats, and outputs to RTF file
       1. Directories for libname and ods excel [6-8]
       2. Proc formats for Table 1 and Table S2 [10-110]
@@ -162,7 +176,7 @@
       17. Datastep and proc report for Table S2 [388-414]
       18. Abstract statistics [416-446]
       
-      FILE7.sas 
+      FILE8.sas 
       Goal: Calcualte Table 1 patient counts and output to be used in FILE6, and get overall patient counts for 'Sample' section of Results 
       1. Directory for libname [7-8]
       2. Proc import imports NU and AltaMed data [10-16, 25-30] 
@@ -177,7 +191,7 @@
       11. Proc sql calculates counts (%) for Rx type by study arm for Table S3 [200-206]
       12. Proc sql calculates total number of distinct patients overall and by Rx type [208-234]
       
-      FILE8.do
+      FILE9.do
       Goal: Output adjusted log MME for each Figure S4 fixed effects predictor level
       1. 'Use' imports data and 'rename' makes all variable names lowercase [8-10]
       2. 'Gen' and 'replace' centers week variable and makes truncated time for intervention (intxwk) and follow-up (infuwk) periods [12-19]
@@ -188,7 +202,7 @@
       7. 'predict' outputs adjusted log MME and error for each fixed predictor level in Figure S4 [39-41]
       8. 'save' saves data to be used in R script to produce Figure S4 [43-44]
       
-      FILE8.r
+      FILE9.r
       Goal: Create Figure S4
       1. Loads packages [1-8]
       2. read_dta imports adjusted log MME for each fixed predictor level from FILE8.do [10-11]
@@ -197,7 +211,7 @@
       5. ggplot produces Figure S4 [19-46]
       6. ggsave saves graph as .jpeg [48-49]
       
-      FILE9.r 
+      FILE10.r 
       Goal: Calculate LTHD numbers 
       1. Directory for libname [10-11]
       2. Proc import imports NU BPA file [13-18] and AltaMed LTHD patients [20-25]
@@ -212,7 +226,7 @@
       11. Datastep appends AltaMed LTHD patients (file created on PSCANNER Keck server) [123-126]
       11. Proc freq produces LTHD patient counts for paragraph 2 of 'Sample' section in results [128-135]
       
-      FILE10.sas 
+      FILE11.sas 
       Goal: Calculate ED and opioid-related ED visit percentages by Tx group for 'Safety outcomes' section of results 
       1. Directory for libname [6-7]
       2. Proc sql creates NU patient sample during intervention period [9-14]
