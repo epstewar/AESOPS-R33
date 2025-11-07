@@ -1,156 +1,138 @@
-/*****************************************************************************************************************
+/**********************************************************************************************************************************************
 **GOALS
-***1. Calculate NU ED and opioid-related ED visit percentages by Tx group for 'Safety outcomes' section of results  
-******************************************************************************************************************/
+***1. LTHD numbers 
+*****a. Number eligible taper enrollment patients (n = 1175)
+*****b. Number not lost to follow-up (n = 731)
+*****c. Number who initially agreed (n = 194)
+*****d. Number who persisted (n = 149)
+***********************************************************************************************************************************************/
 
-*directory;
-libname savepath "/directory/Data";
-	
-*NU patient sample;
-proc sql;
-	create table pats as 
-	select distinct pat_id, bpa, bpa_exp from savepath.mixed_analytic
-	where post = 1 and inst = "NU";
-quit;
+*libname;
+libname savepath "/directory";
 
-*tx;
-proc sql;
-	create table tx as 
-	select distinct pat_id, max(assignment) as max_tx from savepath.mixed_analytic
-	where inst = "NU"
-	group by pat_id;
-quit;
-
-*join Tx with patient sample;
-proc sql;
-	create table pats_v2 as 
-	select t.*, l.max_tx from pats t 
-	left join 
-	tx l 
-	on t.pat_id = l.pat_id;
-quit;
-
-*tx = 1 AB;
-proc sql;
-	create table pat_ab as 
-	select distinct pat_id, 1 as tx from pats_v2 where bpa in ('A', 'B') and max_tx = 1;
-quit;
-
-*tx = 1 C;
-proc sql;
-	create table pat_c as 
-	select distinct pat_id, 1 as tx from pats_v2 where bpa = 'C' and max_tx = 1;
-quit;
-
-*control group AB;
-proc sql;
-	create table cont_ab as 
-	select distinct pat_id, 0 as tx from pats_v2
-	where bpa_exp in ('A', 'B') and max_tx = 0;
-quit;
-
-*control group C;
-proc sql;
-	create table cont_c as 
-	select distinct pat_id, 0 as tx from pats_v2
-	where bpa_exp = 'C' and max_tx = 0;
-quit;
-
-*append TX and control;
-data AB;
-	set pat_ab cont_ab;
-run;
-
-data LTHD;
-	set pat_c cont_c;
-run;
-
-*remove chronic patients from AB sample (samples should be mutually exclusive);
-proc sql;
-	create table temp_ab as 
-	select t.*, l.pat_id as chronic_pat_id from AB t 
-	left join 
-	LTHD l 
-	on t.pat_id = l.pat_id;
-quit;
-
-data ab;
-	set temp_ab;
-	if chronic_pat_id ne '' then delete;
-run;
-
-*overall;
-data total;
-	set ab lthd;
-run;
-	
-*ED visits;
-proc import datafile = "/directory/AESOPS_R33_Trial1_Pt_BiAnnual.csv"
-	out = pattemp
+*import NU BPA file;
+proc import datafile = "/directory/AESOPS_R33_Trial1_BPA.xlsx"
+	out = BPA
 	replace
-	dbms = csv;
-run;	
-
-*convert pat id to character and change number of ED visits from NULL to 0;
-data pattemp;
-	informat pat_id $ 36.;
-	set pattemp;
-	pat_id = put(cohort_patient_id, 32.);
-	if num_ed_vst = "NULL" then num_ed = 0;
-	else num_ed = num_ed_vst;
-	if num_ed_opioid_vst = "NULL" then num_ed_op = 0;
-	else num_ed_op = num_ed_opioid_vst;
-	format pat_id $36.;
+	dbms = xlsx;
 run;
 
-*total number of ed visits/patient;
+*Import AltaMed tapers file;
+proc import datafile = "/directory/AltaMed_tapers.xlsx"
+	out = alta
+	replace
+	dbms = xlsx;
+run;
+
+*1C BPAs for all patients;
 proc sql;
-	create table pat_ed as 
-	select pat_id, sum(num_ed) as sum_ed, sum(num_ed_op) as sum_ed_op 
-	from pattemp
-	where tm ne 1
-	group by pat_id;
+	create table chronic as 
+	select distinct cohort_patient_id, bpa_id, bpa_name, dt_bpa_firing from BPA 
+	where bpa_id in (1906, 1724, 1770, 1839, 1909)
+	order by cohort_patient_id, dt_bpa_firing;
 quit;
 
-*combine BPA patients with ED visits;
-%macro analysis(dat);
-	
-*select distinct patients and combine with ED data;
+*get 1st 1C fire;
+data chronic;
+	set chronic;
+	by cohort_patient_id dt_bpa_firing;
+	if first.cohort_patient_id then rn = 1;
+	else rn+1;
+run;
+
+*patients whose clinicians got a C BPA that was NOT an enrollment prompt (n = 87);
 proc sql;
-	 create table bpa_&dat._ed as 
-	 select t.*, l.sum_ed, l.sum_ed_op,
-	 /*binary ed visits*/
-	 case 
-	 when sum_ed GT 0 then 1 
-	 else 0
-	 end as ed_yn,
-	 case 
-	 when sum_ed_op GT 0 then 1 
-	 else 0
-	 end as ed_op_yn
-	 from &dat t
-	 left join 
-	 pat_ed l 
-	 on t.pat_id = l.pat_id
-	 ;
+	title "No. of distinct patients where 1st BPA is not enrollment";
+	select t.ct_no_enroll, l.total_pat from 
+	(select count(*) as ct_no_enroll from chronic 
+	where rn = 1 and bpa_id ne 1724) t,
+	(select count(*) as total_pat from chronic where rn = 1) l;
 quit;
-	
-proc freq data = bpa_&dat._ed;
-	title "ED visit counts by study arm &dat";
-	table tx*ed_yn/chisq oddsratio;
+
+*type of C alert among patients where 1st BPA is not enrollment (majority "deferrals" {n = 86});
+proc sql;
+	title "Type of LTHD BPA where enrollment is not first";
+	select count(*) as ct, bpa_name from chronic
+	where (bpa_id ne 1724 and rn = 1)
+	group by bpa_name;
+quit;
+
+*total number of BPAs;
+proc sql;
+	create table chronic_v2 as 
+	select t.*, l.total_bpa from chronic t 
+	left join 
+	(select cohort_patient_id, max(rn) as total_bpa from chronic 
+	group by cohort_patient_id) l 
+	on t.cohort_patient_id = l.cohort_patient_id;
+quit;
+
+*binary variables for 'justify', 'enroll' and 'reminder' BPAs;
+data chronic_v2;
+	set chronic_v2;
+	if bpa_id = 1724 then enroll = 1;
+	else enroll = 0;
+	if bpa_id = 1770 then justify = 1;
+	else justify = 0;
+	if rn = 1 and bpa_id ne 1724 then enroll_not_first = 1;
+	else enroll_not_first = 0;
+	if bpa_id = 1839 then reminder = 1;
+	else reminder = 0;
 run;
 
-proc freq data = bpa_&dat._ed;
-	title "ED OP visit counts by study arm &dat";
-	table tx*ed_op_yn/chisq oddsratio;
+*total 'enrolls', 'justifies' and 'reminders' per-patient (one row per-patient);
+proc sql;
+	create table chronic_v3 as
+	select distinct t.cohort_patient_id, 
+	t.total_bpa, 
+	l.total_enroll,
+	l.enroll_yn, 
+	l.justify_yn, 
+	l.enroll_not_first_yn,
+	l.reminder_yn
+	from chronic_v2 t 
+	left join 
+	(select cohort_patient_id, 
+	max(enroll) as enroll_yn,
+  max(enroll_not_first) as enroll_not_first_yn, 
+	max(justify) as justify_yn,
+	max(reminder) as reminder_yn,
+	sum(enroll) as total_enroll
+	from chronic_v2 
+	group by cohort_patient_Id) l
+	on t.cohort_patient_id = l.cohort_patient_id;
+quit;
+
+*indicator variables for lost to follow-up and active taper engagement;
+data savepath.chronic_v3;
+	set chronic_v3;
+	if (total_enroll = total_bpa) or (total_bpa = 1) then lost_follow_up_yn = 1;
+	else lost_follow_up_yn = 0;
+	if lost_follow_up_yn = 1 then engage_taper_yn = .;
+	else if justify_yn = 0 then engage_taper_yn = 1;
+	else engage_taper_yn = 0;
+	if lost_follow_up_yn = 1 then active_engage_taper_yn = .;
+	else if (justify_yn = 0) and (reminder_yn = 1) then active_engage_taper_yn = 1;
+	else active_engage_taper_yn = 0;
+	if lost_follow_up_yn = 1 then not_engaged_yn = .;
+	else if justify_yn = 0 and reminder_yn = 0 then not_engaged_yn = 1;
+	else not_engaged_yn = 0;
+	drop total_bpa;
+run;
+	
+*add altamed;
+data chronic_v4;
+	set savepath.chronic_v3 alta;
 run;
 
-%mend analysis;
-%analysis(AB);
-%analysis(LTHD);
-%analysis(total);
+*patient counts in paragraph 2 of 'sample' section of results;
+*n = 731 not lost to follow-up who received additional opioids throughout study;
+*n = 194 initial taper agreement (1 = engage_taper_yn);
+*n = 149 persisted tapering (1 = active_engage_taper_yn);
+proc freq data = chronic_v4;
+	table enroll_yn enroll_not_first_yn
+	justify_yn reminder_yn lost_follow_up_yn engage_taper_yn active_engage_taper_yn not_engaged_yn;
+run;
 
 
-	
-	
 
