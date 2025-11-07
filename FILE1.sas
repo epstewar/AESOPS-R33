@@ -210,7 +210,7 @@ proc sql;
 quit;
 
 proc export data = table_s1
-outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Results/table_s1.xlsx"
+outfile = "/directory/table_s1.xlsx"
 dbms = xlsx
 replace;
 run;
