@@ -177,6 +177,17 @@
       11. Proc sql calculates counts (%) for Rx type by study arm for Table S3 [200-206]
       12. Proc sql calculates total number of distinct patients overall and by Rx type [208-234]
       
+      FILE8.do
+      Goal: Output adjusted log MME for each Figure S4 fixed effects predictor level
+      1. 'Use' imports data and 'rename' makes all variable names lowercase [8-10]
+      2. 'Gen' and 'replace' centers week variable and makes truncated time for intervention (intxwk) and follow-up (infuwk) periods [12-21]
+      3. 'Save' saves dataset to be used in model [23-24]
+      4. 'Egen', 'keep' and 'list' checks time variables [26-29]
+      5. 'metobit' produces coefficients for intxwk*assignment and infuwk*assignment [31-35]
+      6. 'use' and 'rename' imports data and makes variables lowercase [37-39]
+      7. 'predict' outputs adjusted log MME and error for each predictor level in Figure S4 [41-43]
+      8. 'save' saves data to be used in R script to produce Figure S4
+      
       
          
      
