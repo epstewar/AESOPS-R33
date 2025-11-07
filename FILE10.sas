@@ -1,4 +1,10 @@
-libname savepath "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Data";
+/*****************************************************************************************************************
+**GOALS
+***1. Calculate NU ED and opioid-related ED visit percentages by Tx group for 'Safety outcomes' section of results  
+******************************************************************************************************************/
+
+*directory;
+libname savepath "/directory/Data";
 	
 *NU patient sample;
 proc sql;
@@ -59,7 +65,7 @@ data LTHD;
 	set pat_c cont_c;
 run;
 
-*remove chronic patients from AB sample (samples should be mutuall exclusive);
+*remove chronic patients from AB sample (samples should be mutually exclusive);
 proc sql;
 	create table temp_ab as 
 	select t.*, l.pat_id as chronic_pat_id from AB t 
@@ -68,27 +74,24 @@ proc sql;
 	on t.pat_id = l.pat_id;
 quit;
 
-	data ab;
+data ab;
 	set temp_ab;
 	if chronic_pat_id ne '' then delete;
-	run;
+run;
 
-	proc sql;
-	select count(distinct pat_id) as ct_distinct_pat, count(*) as ct from ab;
-	quit; 
-	
-	*overall;
-	data total;
-		set ab lthd;
-	run;
+*overall;
+data total;
+	set ab lthd;
+run;
 	
 *ED visits;
-proc import datafile = "/schaeffer-a/sch-data-library/dua-data/AESOPS/Original_data/Data/20240731_Download/AESOPS_R33_Trial1_Pt_BiAnnual.csv"
+proc import datafile = "/directory/AESOPS_R33_Trial1_Pt_BiAnnual.csv"
 	out = pattemp
 	replace
 	dbms = csv;
 run;	
 
+*convert pat id to character and change number of ED visits from NULL to 0;
 data pattemp;
 	informat pat_id $ 36.;
 	set pattemp;
@@ -112,31 +115,26 @@ quit;
 *combine BPA patients with ED visits;
 %macro analysis(dat);
 	
-	*select distinct patients and combine with ED data;
-	proc sql;
-		create table bpa_&dat._ed as 
-		select t.*, l.sum_ed, l.sum_ed_op,
-		/*binary ed visits*/
-	  case 
-		when sum_ed GT 0 then 1 
-		else 0
-		end as ed_yn,
-		case 
-		when sum_ed_op GT 0 then 1 
-		else 0
-		end as ed_op_yn
-		from &dat t
-		left join 
-		pat_ed l 
-		on t.pat_id = l.pat_id
-		;
-	quit;
+*select distinct patients and combine with ED data;
+proc sql;
+	 create table bpa_&dat._ed as 
+	 select t.*, l.sum_ed, l.sum_ed_op,
+	 /*binary ed visits*/
+	 case 
+	 when sum_ed GT 0 then 1 
+	 else 0
+	 end as ed_yn,
+	 case 
+	 when sum_ed_op GT 0 then 1 
+	 else 0
+	 end as ed_op_yn
+	 from &dat t
+	 left join 
+	 pat_ed l 
+	 on t.pat_id = l.pat_id
+	 ;
+quit;
 	
-	proc sql;
-		select count(distinct pat_id) as ct_distinct_pat, count(*) as ct, tx from bpa_&dat._ed
-		group by tx;
-	quit; 
-
 proc freq data = bpa_&dat._ed;
 	title "ED visit counts by study arm &dat";
 	table tx*ed_yn/chisq oddsratio;

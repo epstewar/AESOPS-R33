@@ -40,7 +40,7 @@
 	 3. Proc sql merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [52-67]
 	 4. Proc sql gets Rx, patient, and clincians counts [lines 69-106, 115-128] and removes suppositories, injectables and powders [108-113]
 	 5. Proc sql merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [130-138]  
-	 6. Data step cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
+	 6. Datastep cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
 		a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
 		b. For model primary outcome, we used total MME (strength*qty*conversion factor)
 	 7. Proc export exports medication names and conversion factors for Supplemental Table 1 [205-216]
@@ -54,7 +54,7 @@
       2. Proc sql calculates total visit dMME [18-24]
       3. Proc sql acquires all opioid Rxs previous (n = 2,501,244) to index Rx (n = 137,769) [26-63]
       4. Proc sql selects columns to append to previous Rxs and merges dMME by visit_ID [65-97]
-      5. Data step appends index Rxs (rx_index) and previous Rxs (previous_rxs) [94-113]
+      5. Datastep appends index Rxs (rx_index) and previous Rxs (previous_rxs) [94-113]
          a. Intck calculates number of days between index Rx ordering date and previous Rx start and end dates [103-107]
          b. 90-day and 90- to 180-day trigger rules [109-117]
       6. Proc sql sums total number of 90-day (total_ninety) and 90- to 180-day (total_sixmnth) previous opioid Rxs per index Rx [120-129]
@@ -75,7 +75,7 @@
       8. Proc sql checks overall patient, clinic, and clinician counts, and by assignment and BPA type [168-203]
       9. Proc export exports mixed_analytic and mixed_analyticu data to .dta and .csv files [205-214]
       10. Proc sql calculates mean total MME (avg_total_mme) by clinician-week [216-232]
-      11. Data step calculates log total MME (ln_avg_total_mme) [234-238]
+      11. Datastep calculates log total MME (ln_avg_total_mme) [234-238]
       12. Proc sql creates 'empty' data with all clinician-weeks set to MME 0, appends to analytic data, and removes duplicate weeks with 0 MME for non-zero MME clinician-weeks [240-254]
           a. Proc sql creates 'empty' data [240-254]
           b. Datastep combines other analytic variables with 'empty data' [256-271]
@@ -85,7 +85,7 @@
       14. Proc sort and datastep removes duplicate rows with 0 MME for visits with non-zero MME [307-321]
       15. Proc sql checks clinician counts by BPA type and number of weeks per clinician [323-334]
       16. Proc export exports tobit analytic data for each Rx type (e.g., savepath.analytic_tobit_A) to .dta and .csv files [336-349]
-      17. Data step appends A-B, and A-C Rxs [351-362]
+      17. Datastep appends A-B, and A-C Rxs [351-362]
       18. Proc sql sums all Rx types (A-C) by clinician-week [364-374]
       19. Proc sql checks clinician and clinic counts overall and by assignment [376-387]
       20. Proc export exports AB and ABC data to .dta and .csv files [389-402]
@@ -212,10 +212,23 @@
       11. Datastep appends AltaMed LTHD patients (file created on PSCANNER Keck server) [123-126]
       11. Proc freq produces LTHD patient counts for paragraph 2 of 'Sample' section in results [128-135]
       
+      FILE10.sas 
+      Goal: Calculate ED and opioid-related ED visit percentages by Tx group for 'Safety outcomes' section of results 
+      1. Directory for libname [6-7]
+      2. Proc sql creates NU patient sample during intervention period [9-14]
+      3. Proc sql creates binary variable; 1 if patient saw Tx clinician at least once, 0 if never [16-31]
+      4. Proc sql creates samples for patients who saw an intervention clinician for a naive and/or recently exposed, or LTHD Rx [33-43]
+      5. Proc sql creates samples for patients who only saw control clinicians for naive and/or recently exposed, or LTHD Rxs [45-57]
+      6. Datastep appends Tx and control sample for naive + recently exposed, and LTHD [59-66]
+      7. Proc sql removes patients with LTHD Rxs from naive + recently exposed sample [68-80]
+      8. Datastep appends naive+recently exposed and LTHD patients for 'total' [82-85]
+      9. Proc import imports patient biannual file for ED visits [87-92]
+      10. Datastep converts patient ID to character and 'NULL' to 0 [94-104]
+      11. Proc sql calculates total ED visits per-patient during intervention period [106-113]
+      12. Proc sql merges total ED visits with patient samples and creates binary ED and opioid-related ED visit variables [115-136]
+      13. Proc freq outputs total and opioid-related ED visits by study arm [138-146]
+      14. Mend macro executes commands for all 3 Rx types: naive + recently exposed, LTHD, and all three [148-151]
       
-      
-         
-     
          
        
            		
