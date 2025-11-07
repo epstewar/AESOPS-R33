@@ -30,7 +30,7 @@
 
 	CODE
 			FILE1.sas 
-    	Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
+			Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
 			1. Proc import imports raw AESOPS and CDC data [lines 15-26]
 				 a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
 				 b. CDC conversion factors (mme_cw.xlsx)
