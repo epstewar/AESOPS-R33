@@ -9,7 +9,7 @@
 
 *primary outcome
 foreach n in A B C total {
-use $data/tobit_analytic_29Apr25_`n', clear
+use directory/tobit_analytic_29Apr25_`n', clear
 rename *, lower
 
 *change institution to numeric
@@ -39,7 +39,7 @@ matrix list `n'cot
 
 *put coefficients in spreadsheet 
 *output to excel 
-putexcel set $output/results.xlsx, sheet(results_`n') modify
+putexcel set directory/results.xlsx, sheet(results_`n') modify
 putexcel A1 = "Log average weekly MME-Tobit", bold 
 putexcel A2 = matrix(`n'cot'), names nformat(number_d3) 
 putexcel A3:A12 B2:G2, bold
@@ -56,11 +56,11 @@ keep if avg_total_mme < pct
 tabstat avg_total_mme, by(assignment) stat(mean)
 
 *save file to use for SAS 95% CI bootstrapping
-save $data/est_`n', replace
+save directory/est_`n', replace
 }
 
 *secondary outcome
-use $data/secondary_analytic_prop, clear
+use directory/secondary_analytic_prop, clear
 rename *, lower
 
 *change institution to numeric
@@ -152,7 +152,7 @@ matrix totalpat = mean\diffs\did
 matrix list totalpat
  
 *output secondary results to excel
-putexcel set $output/results.xlsx, sheet(secondary_high_dose) modify
+putexcel set directory/results.xlsx, sheet(secondary_high_dose) modify
 putexcel A1 = "Secondary analysis: prop. of patients prescribed high dose Rx (=>50 daily MME) per-week, per-clinician" I1 = "Marginal Effects", bold 
 putexcel A2 = matrix(hidoset') I2 = matrix(totalpat), names nformat(number_d3) 
 putexcel A3:A12 B2:G2 I3:I6 J2:U2, bold

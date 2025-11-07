@@ -1,4 +1,4 @@
-libname savepath "yourdirectory";
+libname savepath "/directory";
 
 /******************************************************************************************************************
 **GOALS
@@ -13,7 +13,7 @@ proc import datafile = "&directory/&infile..xlsx"
 	dbms = xlsx;
 run;
 %mend imp;
-%imp(yourdirectory, rx, rx);
+%imp(directory, rx, rx);
 
 *total visit dMME;
 proc sql;

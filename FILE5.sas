@@ -9,10 +9,10 @@
 ***********************************************************************************************************************************************/
 
 *output tables;
-ods excel file = "/yourdirectory/did_tables_3Oct25.xlsx";
+ods excel file = "/directory/did_tables_3Oct25.xlsx";
 
 *libname 	
-libname results "/yourdirectory/";
+libname results "/directory/";
 
 *proc format 
 proc format;
@@ -28,7 +28,7 @@ run;
 %macro did(bpa);
 	
 *import pre-intervention means from STATA;
-proc import datafile =  "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/est_&bpa..dta"
+proc import datafile =  "/directory/est_&bpa..dta"
 	out = est&bpa
 	dbms = dta;
 run;
@@ -45,7 +45,7 @@ proc means data = est&bpa noprint;
 run;
 
 *import 95% boostrapped CIs from FILE5.r;
-proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/&bpa._boot.csv"
+proc import datafile = "/directory/&bpa._boot.csv"
 	out = &bpa._boot
 	dbms = csv;
 run;

@@ -5,11 +5,11 @@
 ***********************************************************************************************************************************************/
 
 *libname;
-libname savepath "/yourdirectory";
+libname savepath "/directory";
 
 *23568 unique patients in NU sample, 23811 in Table 1 (saw Tx and control clinician);
 *import NU patient data;
-proc import datafile = "/yourdirectory/20240731_Download/AESOPS_R33_Trial1_Pt_demo.xlsx"
+proc import datafile = "/directory/AESOPS_R33_Trial1_Pt_demo.xlsx"
 	out = savepath.nu
 	replace
 	dbms = xlsx;
@@ -23,7 +23,7 @@ data nu;
 run;
 
 *import AltaMed patient data;
-proc import datafile = "/yourdirectory/ALTA_PATIENT_TABLE1.xlsx"
+proc import datafile = "/directory/ALTA_PATIENT_TABLE1.xlsx"
 	out = alta_pat
 	replace
 	dbms = xlsx;

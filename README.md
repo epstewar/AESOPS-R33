@@ -180,13 +180,22 @@
       FILE8.do
       Goal: Output adjusted log MME for each Figure S4 fixed effects predictor level
       1. 'Use' imports data and 'rename' makes all variable names lowercase [8-10]
-      2. 'Gen' and 'replace' centers week variable and makes truncated time for intervention (intxwk) and follow-up (infuwk) periods [12-21]
-      3. 'Save' saves dataset to be used in model [23-24]
-      4. 'Egen', 'keep' and 'list' checks time variables [26-29]
-      5. 'metobit' produces coefficients for intxwk*assignment and infuwk*assignment [31-35]
-      6. 'use' and 'rename' imports data and makes variables lowercase [37-39]
-      7. 'predict' outputs adjusted log MME and error for each predictor level in Figure S4 [41-43]
-      8. 'save' saves data to be used in R script to produce Figure S4
+      2. 'Gen' and 'replace' centers week variable and makes truncated time for intervention (intxwk) and follow-up (infuwk) periods [12-19]
+      3. 'Save' saves dataset to be used in model [21-22]
+      4. 'Egen', 'keep' and 'list' checks time variables [24-27]
+      5. 'metobit' produces coefficients for intxwk*assignment and infuwk*assignment [29-33]
+      6. 'use' and 'rename' imports data and makes variables lowercase [35-37]
+      7. 'predict' outputs adjusted log MME and error for each fixed predictor level in Figure S4 [39-41]
+      8. 'save' saves data to be used in R script to produce Figure S4 [43-44]
+      
+      FILE8.r
+      Goal: Create Figure S4
+      1. Loads packages [1-8]
+      2. read_dta imports adjusted log MME for each fixed predictor level from FILE8.do [10-11]
+      3. as.factor converts study assignment to factor [13-14]
+      4. Adds group colors [16-17]
+      5. ggplot produces Figure S4 [19-46]
+      6. ggsave saves graph as .jpeg [48-49]
       
       
          

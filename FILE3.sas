@@ -1,4 +1,4 @@
-libname savepath "yourdirectory";
+libname savepath "/directory";
 
 /*********************************************************************************************************************************************
 **GOALS
@@ -18,14 +18,14 @@ proc import datafile = "&directory/&infile..xlsx"
 	dbms = xlsx;
 run;
 %mend imp;
-%imp(yourdirectory, clinician_weekly, savepath.numvisits);
-%imp(yourdirecotry, weeks, savepath.time); 
+%imp(directory, clinician_weekly, savepath.numvisits);
+%imp(direcotry, weeks, savepath.time); 
 	
 *AltaMed data-includes undefined patients;
 %macro imp(file, outfile);
 data savepath.&outfile;
       %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
-			infile "/yourdirectory/altamed.csv"
+			infile "/directory/&file..csv"
 			delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2 ;
      	informat PROV_DEID $32. ;
 		  informat CLINIC_ID $10. ;
@@ -204,12 +204,12 @@ quit;
 
 *export file for mixed effects (not tobit) to dta;
 proc export data = savepath.mixed_analytic
-	outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/mixed_analytic_29Apr25.dta"
+	outfile = "/directory/mixed_analytic_29Apr25.dta"
 	replace;
 run;
 
 proc export data = savepath.mixed_analytic
-	outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/mixed_analytic_29Apr25.csv"
+	outfile = "/directory/mixed_analytic_29Apr25.csv"
 	replace;
 run;
 
@@ -217,18 +217,18 @@ run;
 
 *grouping MME by week by prescriber-week;
 proc sql;
-create table temp as 
-select ,
-avg(total_mme) as avg_total_mme,
-inst,
-prov_deid,
-assignment, 
-clinic_id, 
-week,
-post 
-from savepath.mixed_analyticu
-where BPA_exp = "&var"
-group by inst, prov_deid, assignment, clinic_id, week, post;
+	create table temp as 
+	select ,
+	avg(total_mme) as avg_total_mme,
+	inst,
+	prov_deid,
+	assignment, 
+	clinic_id, 
+	week,
+	post 
+	from savepath.mixed_analyticu
+	where BPA_exp = "&var"
+	group by inst, prov_deid, assignment, clinic_id, week, post;
 quit;
 
 *log MME;
@@ -239,35 +239,35 @@ run;
 
 *weeks for all prescribers;
 proc sql;
-create table all_weeks as 
-select t.prov_deid, 
-l.week,
-0 as ln_avg_total_mme,
-case 
-when 1 <= week <= 26 then 0 
-when 27 <= week <= 104 then 1
-else 2
-end as post
-from 
-(select distinct prov_deid from temp) t,
-(select distinct week from savepath.time where week ne .) l;
+	create table all_weeks as 
+	select t.prov_deid, 
+	l.week,
+	0 as ln_avg_total_mme,
+	case 
+	when 1 <= week <= 26 then 0 
+	when 27 <= week <= 104 then 1
+	else 2
+	end as post
+	from 
+	(select distinct prov_deid from temp) t,
+	(select distinct week from savepath.time where week ne .) l;
 quit;
 
 *add clinic, assignment, inst;
 proc sql;
-create table all_weeks_v2 as 
-select distinct 
-t.ln_avg_total_mme,
-l.inst,
-t.prov_deid,
-l.assignment, 
-l.clinic_id, 
-t.week,
-t.post
-from all_weeks t 
-left join 
-temp l 
-on t.prov_deid = l.prov_deid;
+	create table all_weeks_v2 as 
+	select distinct 
+	t.ln_avg_total_mme,
+	l.inst,
+	t.prov_deid,
+	l.assignment, 
+	l.clinic_id, 
+	t.week,
+	t.post
+	from all_weeks t 
+	left join 
+	temp l 
+	on t.prov_deid = l.prov_deid;
 quit;
 
 *reorder columns for union (must match);
@@ -334,11 +334,11 @@ proc sql;
 quit;
 
 *export analytic files to dta and csv;
-proc export data = savepath.analytic_tobit_18Aug25_&var outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/tobit_analytic_18Aug25_&var..dta"
+proc export data = savepath.analytic_tobit_18Aug25_&var outfile = "/directory/tobit_analytic_18Aug25_&var..dta"
 replace;
 run;
 
-proc export data = savepath.analytic_tobit_18Aug25_&var outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/tobit_analytic_18Aug25_&var..csv"
+proc export data = savepath.analytic_tobit_18Aug25_&var outfile = "/directory/tobit_analytic_18Aug25_&var..csv"
 replace;
 run;
 
@@ -388,12 +388,12 @@ quit;
 
 *export data;
 proc export data = savepath.analytic_tobit_18Aug25_&dat
-outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/tobit_analytic_18Aug25_&dat..csv"
+outfile = "/directory/tobit_analytic_18Aug25_&dat..csv"
 replace;
 run;
 
 proc export data = savepath.analytic_tobit_18Aug25_&dat
-outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/tobit_analytic_18Aug25_&dat..dta"
+outfile = "/directory/tobit_analytic_18Aug25_&dat..dta"
 replace;
 run;
 
@@ -435,12 +435,12 @@ quit;
 
 *export data;
 proc export data = secondary_analytic_prop
-	outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/secondary_analytic_prop.dta"
+	outfile = "/directory/secondary_analytic_prop.dta"
 	replace;
 run;
 
 proc export data = secondary_analytic_prop
-	outfile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/secondary_analytic_prop.csv"
+	outfile = "/directory/secondary_analytic_prop.csv"
 	replace;
 run;
 

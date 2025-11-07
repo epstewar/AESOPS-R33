@@ -1,5 +1,5 @@
-libname savepath "yourdirectory";
-ods pdf file = "yourdirectory";
+libname savepath "/directory";
+ods pdf file = "/directory/sample.pdf";
 
 /******************************************************************************************************************
 **GOALS
@@ -20,10 +20,10 @@ proc import datafile = "&directory/&infile..xlsx"
 	dbms = xlsx;
 run;
 %mend imp;
-%imp(yourdirectory, rx, rx);
-%imp(yourdirectory, mme_cw, cw);
-%imp(yourdirectory, AESOPS_R33_Trial1_ClinicianDemo, clinicians);
-%imp(yourdirectory, AESOPS_R33_Trial1_BPA, bpas);
+%imp(directory, rx, rx);
+%imp(directory, mme_cw, cw);
+%imp(directory, AESOPS_R33_Trial1_ClinicianDemo, clinicians);
+%imp(directory, AESOPS_R33_Trial1_BPA, bpas);
 
 *add DMME (found in savepath.rx_cw_v4) to rx file;
 *remove duplicates;

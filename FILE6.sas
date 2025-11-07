@@ -4,8 +4,8 @@
 ***********************************************************************************************************************************************/
 
 *libname;
-libname savepath "/yourdirectory";
-ods rtf file="/yourdirectory/Table1.rtf";
+libname savepath "/directory";
+ods rtf file="/directory/Table1.rtf";
 
 *format for overall table;
 proc format;
@@ -110,14 +110,14 @@ proc format;
 run;
 
 *NU;
-proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/AESOPS_R33_Trial1_ClinicianDemo.xlsx"
+proc import datafile = "/directory/AESOPS_R33_Trial1_ClinicianDemo.xlsx"
 out = nu
 replace
 dbms = xlsx;
 run;
 
 *AltaMed;
-proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/table1_altamed_24Oct25.xlsx"
+proc import datafile = "/directory/table1_altamed_24Oct25.xlsx"
 out = alta
 replace
 dbms = xlsx;
