@@ -1,14 +1,24 @@
-libname savepath "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25";
+/**********************************************************************************************************************************************
+**GOALS
+***1. LTHD numbers 
+*****a. Number eligible taper enrollment patients (n = 1175)
+*****b. Number not lost to follow-up (n = 731)
+*****c. Number who initially agreed (n = 194)
+*****d. Number who persisted (n = 149)
+***********************************************************************************************************************************************/
+
+*libname;
+libname savepath "/directory";
 
 *import NU BPA file;
-proc import datafile = "/schaeffer-a/sch-data-library/dua-data/AESOPS/Original_data/Data/20240731_Download/AESOPS_R33_Trial1_BPA.xlsx"
+proc import datafile = "/directory/AESOPS_R33_Trial1_BPA.xlsx"
 	out = BPA
 	replace
 	dbms = xlsx;
 run;
 
-*Import AltaMed file;
-proc import datafile = "/schaeffer-a/sch-projects/dua-data-projects/AESOPS/R33_NU/Recent_25Mar25/Data/AltaMed_tapers.xlsx"
+*Import AltaMed tapers file;
+proc import datafile = "/directory/AltaMed_tapers.xlsx"
 	out = alta
 	replace
 	dbms = xlsx;
@@ -22,6 +32,7 @@ proc sql;
 	order by cohort_patient_id, dt_bpa_firing;
 quit;
 
+*get 1st 1C fire;
 data chronic;
 	set chronic;
 	by cohort_patient_id dt_bpa_firing;
@@ -29,6 +40,7 @@ data chronic;
 	else rn+1;
 run;
 
+*patients whose clinicians got a C BPA that was NOT an enrollment prompt (n = 87);
 proc sql;
 	title "No. of distinct patients where 1st BPA is not enrollment";
 	select t.ct_no_enroll, l.total_pat from 
@@ -37,7 +49,9 @@ proc sql;
 	(select count(*) as total_pat from chronic where rn = 1) l;
 quit;
 
+*type of C alert among patients where 1st BPA is not enrollment (majority "deferrals" {n = 86});
 proc sql;
+	title "Type of LTHD BPA where enrollment is not first";
 	select count(*) as ct, bpa_name from chronic
 	where (bpa_id ne 1724 and rn = 1)
 	group by bpa_name;
@@ -53,17 +67,7 @@ proc sql;
 	on t.cohort_patient_id = l.cohort_patient_id;
 quit;
 
-proc sql;
-	select count(distinct cohort_patient_id) from chronic_v2;
-quit;
-
-*total number of patients with only 1 chronic bpa;
-/*proc sql;
-	title "No. of patients lost to follow up after BPA enrollment";
-	select count(distinct cohort_patient_id) as pat_ct, total_bpa from chronic_v2 
-	group by total_bpa;
-quit;*/
-
+*binary variables for 'justify', 'enroll' and 'reminder' BPAs;
 data chronic_v2;
 	set chronic_v2;
 	if bpa_id = 1724 then enroll = 1;
@@ -76,7 +80,7 @@ data chronic_v2;
 	else reminder = 0;
 run;
 
-*whether patient enrolled or justified;
+*total 'enrolls', 'justifies' and 'reminders' per-patient (one row per-patient);
 proc sql;
 	create table chronic_v3 as
 	select distinct t.cohort_patient_id, 
@@ -99,6 +103,7 @@ proc sql;
 	on t.cohort_patient_id = l.cohort_patient_id;
 quit;
 
+*indicator variables for lost to follow-up and active taper engagement;
 data savepath.chronic_v3;
 	set chronic_v3;
 	if (total_enroll = total_bpa) or (total_bpa = 1) then lost_follow_up_yn = 1;
@@ -117,9 +122,13 @@ run;
 	
 *add altamed;
 data chronic_v4;
-	set chronic_v3 alta;
+	set savepath.chronic_v3 alta;
 run;
 
+*patient counts in paragraph 2 of 'sample' section of results;
+*n = 731 not lost to follow-up who received additional opioids throughout study;
+*n = 194 initial taper agreement (1 = engage_taper_yn);
+*n = 149 persisted tapering (1 = active_engage_taper_yn);
 proc freq data = chronic_v4;
 	table enroll_yn enroll_not_first_yn
 	justify_yn reminder_yn lost_follow_up_yn engage_taper_yn active_engage_taper_yn not_engaged_yn;

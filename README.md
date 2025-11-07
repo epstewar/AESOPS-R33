@@ -197,6 +197,22 @@
       5. ggplot produces Figure S4 [19-46]
       6. ggsave saves graph as .jpeg [48-49]
       
+      FILE9.r 
+      Goal: Calculate LTHD numbers 
+      1. Directory for libname [10-11]
+      2. Proc import imports NU BPA file [13-18] and AltaMed LTHD patients [20-25]
+      3. Proc sql gets chronological LTHD alerts for every patient [27-33]
+      4. Datastep gets first LTHD fire [35-41]
+      5. Proc sql outputs number of patients where 1st LTHD BPA is not enrollment [43-50]
+      6. Proc sql outputs LTHD BPA type where LTHD 1st BPA NOT enrollment (n = 87) [52-58]
+      7. Proc sql calculates total LTHD BPAs per-patient [60-68]
+      8. Datastep makes binary indicators for LTHD BPA types (e.g., justify, enroll, defer) [70-81]
+      9. Proc sql calculates total LTHD BPA types for each patient; file has 1 row per-patient [83-104]
+      10. Datastep makes variables flagging whether patient has any of the BPA types [106-121]
+      11. Datastep appends AltaMed LTHD patients (file created on PSCANNER Keck server) [123-126]
+      11. Proc freq produces LTHD patient counts for paragraph 2 of 'Sample' section in results [128-135]
+      
+      
       
          
      
