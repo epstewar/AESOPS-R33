@@ -33,19 +33,19 @@
 	 Goal: Import and clean prescription, BPA and clinician data, and merge into one file ('sample_mme_bpa.sas7bdat')
 	 1. Proc import imports raw AESOPS and CDC data [lines 15-26]
 			a. Opioid prescriptions with '' replacing nulls (rx.xlsx)
-		  b. CDC conversion factors (mme_cw.xlsx)
+			b. CDC conversion factors (mme_cw.xlsx)
 			c. Clinician demographics (AESOPS_R33_Trial1_ClinicianDemo.xlsx)
 			d. Best Practice Alerts (BPAs) (AESOPS_R33_Trial1_BPA.xlsx)
-		2. Proc sql merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [28-50]
-		3. Proc sql merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [52-67]
-		4. Proc sql gets Rx, patient, and clincians counts [lines 69-106, 115-128] and removes suppositories, injectables and powders [108-113]
-		5. Proc sql merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [130-138]  
-		6. Data step cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
+	 2. Proc sql merges daily MME extracted from sigline (savepath.rx_cw_v4) with prescriptions by prescription ID [28-50]
+	 3. Proc sql merges clinician demos. (assignment, region, clinic) with prescription data and creates 'post' variable using study dates [52-67]
+	 4. Proc sql gets Rx, patient, and clincians counts [lines 69-106, 115-128] and removes suppositories, injectables and powders [108-113]
+	 5. Proc sql merges CDC info. (e.g., conversion factor) with prescription data by medication ID (we do not have NDC) [130-138]  
+	 6. Data step cleans Rx strength, qty, etc., and calculates average daily and total MME [140-203]
 			a. To deterimine whether Rx was LTHD, we used daily MME from sig line. This was summed by visit to acquire total visit DMME (total_visit_dmme) for visits with multiple Rxs.
 			b. For model primary outcome, we used total MME (strength*qty*conversion factor)
-		7. Proc export exports medication names and conversion factors for Supplemental Table 1 [205-216]
-		8. Proc sql adds BPA label to BPA file and merges with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [218-250]
-		9. Proc sort and datastep outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') [252-263] and checks clinician and clinic counts [265-287]
+	 7. Proc export exports medication names and conversion factors for Supplemental Table 1 [205-216]
+	 8. Proc sql adds BPA label to BPA file and merges with Rx file by visit ID (unfortunately, we do not have 'prescription_id' in BPA file) [218-250]
+	 9. Proc sort and datastep outputs index Rxs that occur in study period ('post ne .') among study clinicians (prov_deid ne '') [252-263] and checks clinician and clinic counts [265-287]
 			a. File 'sample_mme_bpa.sas7bdat' saved to directory. Contains 137,769 unique index Rxs.
 	 
       FILE2.sas
