@@ -129,17 +129,17 @@ proc sql;
 	log(t.total_mme) as ln_total_mme,
 	t.avg_daily_mme,
 	log(t.avg_daily_mme) as ln_daily_mme,
-  t.randomization as assignment, 
-  t.post,
-  case 
-  when (t.randomization = 1 and t.post = 1) then t.bpa_obs
-  else t.bpa_exp
-  end as bpa, 
-  t.bpa_exp,
-  'NU' as INST, 
-  n.num_vsts
-  from
-  bpa_type_v2 t 
+    t.randomization as assignment, 
+    t.post,
+    case 
+    when (t.randomization = 1 and t.post = 1) then t.bpa_obs
+    else t.bpa_exp
+    end as bpa, 
+    t.bpa_exp,
+    'NU' as INST, 
+    n.num_vsts
+    from
+    bpa_type_v2 t 
 	left join 
 	savepath.time l 
 	on l.start_date <= t.ordering_date <= l.end_date
@@ -151,7 +151,7 @@ quit;
 
 *combine altamed and NU data w/out undefined patients;
 proc sql;
-  create table savepath.mixed_analytic as
+    create table savepath.mixed_analytic as
 	(select prov_deid, clinic_id, pat_id, . as index_rx, week, total_mme, ln_total_mme, avg_daily_mme, ln_daily_mme, assignment, post, bpa length = 20, bpa_exp length = 20, inst, num_vsts from savepath.alta) 
 	union all
 	(select prov_deid, clinic_id, pat_id, index_rx as NU_prescription_id, week, total_mme, ln_total_mme, avg_daily_mme, ln_daily_mme, assignment, post, bpa length = 20, bpa_exp length = 20, inst, num_vsts from bpa_type_v3 where bpa_exp ne 'None');
@@ -218,7 +218,7 @@ run;
 *grouping MME by week by prescriber-week;
 proc sql;
 	create table temp as 
-	select ,
+	select 
 	avg(total_mme) as avg_total_mme,
 	inst,
 	prov_deid,
@@ -298,10 +298,10 @@ proc sql;
 	/*end step 1*/
 	
 	t left join
-  numvsts n 
+    numvsts n 
 	on t.week = n.wks
 	and t.prov_deid = n.prov_deid;
-	/*end step 2*/
+    /*end step 2*/
 quit;
 
 *remove duplicate rows for week;
@@ -368,7 +368,7 @@ proc sql;
 	select	
 	/*adding log average total MME for A and B, or A-C per-clinician, per-week*/
 	sum(ln_avg_total_mme) as ln_avg_total_mme,
-  INST, PROV_DEID, ASSIGNMENT, CLINIC_ID, WEEK, POST, NUM_VSTS from savepath.analytic_tobit_&dat
+    INST, PROV_DEID, ASSIGNMENT, CLINIC_ID, WEEK, POST, NUM_VSTS from savepath.analytic_tobit_&dat
 	group by inst, prov_deid, assignment, clinic_id, week, post, num_vsts
 	order by prov_deid, week;
 quit;
@@ -377,7 +377,7 @@ quit;
 *489 clinicians (N = 489*131 = 64,059);
 proc sql;
 	select count(distinct prov_deid) as ct_pres, count(distinct clinic_id) as ct_clinics from savepath.analytic_tobit_18Aug25_&dat;
-  title "Clinician and clinic counts by assignment data &dat";
+    title "Clinician and clinic counts by assignment data &dat";
 quit;
 
 proc sql;
