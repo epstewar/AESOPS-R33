@@ -58,7 +58,7 @@ proc sql;
 	when '11NOV2020'd <= ordering_date <= '29MAY2022'd then 1
 	when '30MAY2022'd <= ordering_date <= '30NOV2022'd then 2
 	else .
-  end as post,
+    end as post,
 	l.randomization, l.region, l.clinic_id
 	from rx t 
 	left join 
@@ -182,24 +182,24 @@ data sample_mme;
 	/*Days' supply*/
 	days = end_date - start_date;
   
-  /*MME*/
+  	/*MME*/
 	if days <= 0 then days = 30;
-  avg_daily_MME = strengthn*(quantityn/30)*MME_factor;
-  total_MME = strengthn*quantityn*MME_factor;
-  if days ne 0 then do;
-  avg_daily_mme_v2 = strengthn*(quantityn/days)*mme_factor;
-  end;
+    avg_daily_MME = strengthn*(quantityn/30)*MME_factor;
+    total_MME = strengthn*quantityn*MME_factor;
+    if days ne 0 then do;
+    avg_daily_mme_v2 = strengthn*(quantityn/days)*mme_factor;
+    end;
 
-  /*standardize drug forms*/
+    /*standardize drug forms*/
  	if medication_id in (210364, 3758) then form = 'Solution';
-  if form = '' then form_v2 = '';
-  else if form in ('Concentrate', 'Syrup', 'Syringe', 'Suspension', 'Solution', 'Liquid', 'suspension,extended rel 12 hr', 'Tincture', 'spray,non-aerosol') then form_v2 = "Solution";
-  else if form = "Suppository" then form_v2 = "Suppository";
-  else if form = "patch 72 hour" then form_v2 = "Patch";
-  else form_v2 = "Tablet";
+    if form = '' then form_v2 = '';
+    else if form in ('Concentrate', 'Syrup', 'Syringe', 'Suspension', 'Solution', 'Liquid', 'suspension,extended rel 12 hr', 'Tincture', 'spray,non-aerosol') then form_v2 = "Solution";
+    else if form = "Suppository" then form_v2 = "Suppository";
+    else if form = "patch 72 hour" then form_v2 = "Patch";
+    else form_v2 = "Tablet";
   
-  /*remove Rxs with missing MME (no pill qty)*/
-  if total_mme ne . then output;
+    /*remove Rxs with missing MME (no pill qty)*/
+    if total_mme ne . then output;
 run;
 
 *supplemental Table 1;
